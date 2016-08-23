@@ -16,8 +16,14 @@ public class PlayerCtrl : MonoBehaviour {
         m_cameraTransform = Camera.main.transform;
 	}
 	
+    void Update()
+    {
+        MoveUpdate();
+        AttackUpdate();
+    }
+
 	void LateUpdate () {
-        m_myTransform.eulerAngles = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z);
+       LookAt();
 	}
 
     void OnAnimatorIK(int layer)
@@ -28,4 +34,25 @@ public class PlayerCtrl : MonoBehaviour {
             m_myAnim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
         }
     }
+
+    private void AttackUpdate()
+    {
+        if (Input.GetButton("Fire1"))
+            m_myAnim.SetBool("isShot", true);
+        else
+            m_myAnim.SetBool("isShot", false);
+    }
+
+    private void MoveUpdate()
+    {
+        Vector3 movePos = (Vector3.up * Input.GetAxis("Vertical")) + (Vector3.right * Input.GetAxis("Horizontal"));
+        m_myAnim.SetFloat("inputMagnitude", movePos.magnitude);
+    }
+
+    private void LookAt()
+    {
+        m_myTransform.eulerAngles = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z);
+    }
+
+
 }
