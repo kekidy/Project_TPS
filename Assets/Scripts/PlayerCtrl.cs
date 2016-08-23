@@ -37,7 +37,7 @@ public class PlayerCtrl : MonoBehaviour {
 
     private void AttackUpdate()
     {
-        if (Input.GetButton("Fire1"))
+        if (Input.GetButton("Shot"))
             m_myAnim.SetBool("isShot", true);
         else
             m_myAnim.SetBool("isShot", false);
@@ -45,8 +45,11 @@ public class PlayerCtrl : MonoBehaviour {
 
     private void MoveUpdate()
     {
-        Vector3 movePos = (Vector3.up * Input.GetAxis("Vertical")) + (Vector3.right * Input.GetAxis("Horizontal"));
-        m_myAnim.SetFloat("inputMagnitude", movePos.magnitude);
+        float vertical   = Input.GetAxis("Vertical");
+        float horizontal = Input.GetAxis("Horizontal");
+
+        m_myAnim.SetFloat("vertical", vertical);
+        m_myAnim.SetFloat("horizontal", horizontal);
     }
 
     private void LookAt()

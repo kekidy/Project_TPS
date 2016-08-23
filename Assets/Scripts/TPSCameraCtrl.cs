@@ -2,33 +2,48 @@
 using System.Collections;
 
 public class TPSCameraCtrl : MonoBehaviour {
-    [SerializeField] private Transform m_ownerTransform;
-    [SerializeField] private Vector3   m_distanceOffset = Vector3.zero;
+    [Header("TargetTraceInfo")]
+    [SerializeField] private Transform m_traceTargetTransform = null;
+    [SerializeField] private Vector3   m_distanceOffset       = Vector3.zero;
+
+    [Header("Angle")]
     [SerializeField] private float     m_limitUpVerticalAngle   = 0f;
     [SerializeField] private float     m_limitDownVerticalAngle = 0f;
 
-    private Animator  m_ownerAnim;
+    [Header("Zoom")]
+    [SerializeField] private float     m_zoomViewValue          = 30f;
+    [SerializeField] private float     m_zoomCompleteSeconds    = 1f;
 
-    private Transform m_myTransform;
+    private Animator  m_ownerAnim   = null;
+    private Transform m_myTransform = null;
+    private Camera    m_myCamera    = null;
 
-    private float m_rotX;
-    private float m_rotY;
+    private float m_rotX = 0f;
+    private float m_rotY = 0f;
+    private float m_normalViewValue = 0f;
 
 	void Awake () {
-        m_myTransform    = transform;
-        m_ownerAnim      = m_ownerTransform.GetComponent<Animator>();
+        m_myTransform     = transform;
+        m_myCamera        = GetComponent<Camera>();
+        m_ownerAnim       = m_traceTargetTransform.GetComponent<Animator>();
+        m_normalViewValue = m_myCamera.fieldOfView;
 	}
 
 	void Update () {
         AngleCalculate();
+
+        CameraZoomUpdate();
 	}
 
     void OnDrawGizmos()
     {
-        if (m_ownerTransform != null && m_myTransform != null)
+        if (m_traceTargetTransform != null && m_myTransform != null)
         {
-            Gizmos.DrawLine(m_myTransform.position, m_ownerTransform.position + new Vector3(0f, m_distanceOffset.y, 0f));
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(m_myTransform.position, m_traceTargetTransform.position);
+            Gizmos.color = Color.green;
             Gizmos.DrawLine(m_myTransform.position, m_myTransform.position + m_myTransform.forward * 5f);
+            Gizmos.color = Color.white;
         }
     }
 
@@ -38,11 +53,13 @@ public class TPSCameraCtrl : MonoBehaviour {
         m_rotX = Mathf.Clamp(m_rotX += -Input.GetAxis("Mouse Y"), m_limitDownVerticalAngle, m_limitUpVerticalAngle);
 
         m_myTransform.eulerAngles = new Vector3(m_rotX, m_rotY, 0.0f);
-        m_myTransform.position = m_ownerTransform.position + m_myTransform.rotation * m_distanceOffset;
+        m_myTransform.position = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
 
-        float angleA = m_myTransform.rotation.eulerAngles.y > 180 ? m_myTransform.rotation.eulerAngles.y - 360f : m_myTransform.rotation.eulerAngles.y;
-        float angleB = m_ownerTransform.rotation.eulerAngles.y > 180 ? m_ownerTransform.rotation.eulerAngles.y - 360f : m_ownerTransform.rotation.eulerAngles.y;
-        float _signedAngle = angleA - angleB;
+        float myAngleY     = m_myTransform.rotation.eulerAngles.y;
+        float targetAngleY = m_traceTargetTransform.rotation.eulerAngles.y;
+        float myRevisionAngleY     = myAngleY > 180 ? myAngleY - 360f : myAngleY;
+        float targetRevisionAngleY = targetAngleY > 180 ? targetAngleY - 360f : targetAngleY;
+        float _signedAngle = myRevisionAngleY - targetRevisionAngleY;
 
         //Vector3 forwardA = transform.rotation * Vector3.forward;
         //Vector3 forwardB = target.rotation * Vector3.forward;
@@ -54,5 +71,44 @@ public class TPSCameraCtrl : MonoBehaviour {
 
         m_ownerAnim.SetFloat("horAngle", _signedAngle);
         m_ownerAnim.SetFloat("verAngle", m_rotX);
+    }
+
+    private void CameraZoomUpdate()
+    {
+        if (Input.GetButtonDown("Zoom"))
+        {
+            StopCoroutine("CameraZoom");
+            StartCoroutine("CameraZoomOn", true);
+        }
+        else if (Input.GetButtonUp("Zoom"))
+        {
+            StopCoroutine("CameraZoom");
+            StartCoroutine("CameraZoomOn", false);
+        }            
+
+    }
+
+    public IEnumerator CameraZoomOn(bool isZoomOn)
+    {
+        float zoomProgress = 0f;
+        if (isZoomOn)
+            zoomProgress = (m_normalViewValue - m_myCamera.fieldOfView) / (m_normalViewValue - m_zoomViewValue);
+        else
+            zoomProgress = 1f + ((m_myCamera.fieldOfView - m_normalViewValue) / (m_normalViewValue - m_zoomViewValue));
+        
+        while (true)
+        {
+            zoomProgress += Time.smoothDeltaTime;
+
+            if (isZoomOn)
+                m_myCamera.fieldOfView = Mathf.Lerp(m_normalViewValue, m_zoomViewValue, (zoomProgress / m_zoomCompleteSeconds));
+            else
+                m_myCamera.fieldOfView = Mathf.Lerp(m_zoomViewValue + (m_normalViewValue * zoomProgress), m_normalViewValue, (zoomProgress / m_zoomCompleteSeconds));
+
+            if ((zoomProgress / m_zoomCompleteSeconds) >= 1f)
+                break;
+
+            yield return null;
+        }
     }
 }
