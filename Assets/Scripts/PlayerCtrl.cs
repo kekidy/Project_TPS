@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class PlayerCtrl : MonoBehaviour {
     [Header("IK Target")]
     [SerializeField] private Transform leftHandTarget;
@@ -45,11 +47,19 @@ public class PlayerCtrl : MonoBehaviour {
 
     private void MoveUpdate()
     {
-        float vertical   = Input.GetAxis("Vertical");
-        float horizontal = Input.GetAxis("Horizontal");
+        float   vertical   = Input.GetAxis("Vertical");
+        float   horizontal = Input.GetAxis("Horizontal");
+        Vector3 direction  = ((Vector3.forward * vertical) + (Vector3.right * horizontal));
+        float   inputMagnitude = direction.magnitude;
+
+        if (inputMagnitude >= 0.5f)
+            m_myAnim.SetFloat("moveStartAngle", Quaternion.LookRotation(direction, Vector3.up).eulerAngles.y);
+        else
+            m_myAnim.SetFloat("moveStopAngle", m_myAnim.GetFloat("moveStartAngle"));
 
         m_myAnim.SetFloat("vertical", vertical);
         m_myAnim.SetFloat("horizontal", horizontal);
+        m_myAnim.SetFloat("inputMagnitude", inputMagnitude);
     }
 
     private void LookAt()

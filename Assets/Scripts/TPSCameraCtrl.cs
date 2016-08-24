@@ -22,6 +22,8 @@ public class TPSCameraCtrl : MonoBehaviour {
     private float m_rotY = 0f;
     private float m_normalViewValue = 0f;
 
+    private bool m_isZoomOn = false;
+
 	void Awake () {
         m_myTransform     = transform;
         m_myCamera        = GetComponent<Camera>();
@@ -77,14 +79,14 @@ public class TPSCameraCtrl : MonoBehaviour {
     {
         if (Input.GetButtonDown("Zoom"))
         {
+            if (m_isZoomOn)
+                m_isZoomOn = false;
+            else
+                m_isZoomOn = true;
+
             StopCoroutine("CameraZoom");
-            StartCoroutine("CameraZoomOn", true);
-        }
-        else if (Input.GetButtonUp("Zoom"))
-        {
-            StopCoroutine("CameraZoom");
-            StartCoroutine("CameraZoomOn", false);
-        }            
+            StartCoroutine("CameraZoomOn", m_isZoomOn);
+        }        
 
     }
 
