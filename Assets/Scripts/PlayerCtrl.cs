@@ -4,13 +4,16 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 public class PlayerCtrl : MonoBehaviour {
+    [SerializeField] private RifleCtrl m_rifleCtrl;
+
     [Header("IK Target")]
     [SerializeField] private Transform leftHandTarget;
 
 	private Transform m_myTransform;
     private Animator  m_myAnim;
-
     private Transform m_cameraTransform;
+
+    private float m_ikLeftHandWeight = 1f;
 
 	void Awake () {
         m_myTransform = transform;
@@ -22,6 +25,8 @@ public class PlayerCtrl : MonoBehaviour {
     {
         MoveUpdate();
         AttackUpdate();
+        SprintUpdate();
+        ReloadUpdate();
     }
 
 	void LateUpdate () {
@@ -30,19 +35,40 @@ public class PlayerCtrl : MonoBehaviour {
 
     void OnAnimatorIK(int layer)
     {
-        if (layer == 0)
+        if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isVault"))
         {
-            m_myAnim.SetIKPositionWeight(AvatarIKGoal.LeftHand, 0.5f);
+            m_ikLeftHandWeight = Mathf.MoveTowards(m_ikLeftHandWeight, 1f, Time.smoothDeltaTime * 2f);
+            m_myAnim.SetIKPositionWeight(AvatarIKGoal.LeftHand, m_ikLeftHandWeight);
             m_myAnim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
+        }
+        else
+            m_ikLeftHandWeight = 0f;
+    }
+
+    void OnCollisionStay(Collision col)
+    {
+        if (col.collider.tag == "Vault")
+        {
+            if (!m_myAnim.GetBool("isVault") && Input.GetAxis("Vertical") > 0f)
+                m_myAnim.SetTrigger("vaultTrigger");
         }
     }
 
     private void AttackUpdate()
     {
-        if (Input.GetButton("Shot"))
-            m_myAnim.SetBool("isShot", true);
-        else
-            m_myAnim.SetBool("isShot", false);
+        if (!m_myAnim.GetBool("isReload"))
+        {
+            if (Input.GetButton("Shot"))
+            {
+                m_myAnim.SetBool("isShot", true);
+                m_rifleCtrl.StartToShooting();
+            }
+            else
+            {
+                m_myAnim.SetBool("isShot", false);
+                m_rifleCtrl.StopToShooting();
+            }
+        }
     }
 
     private void MoveUpdate()
@@ -62,9 +88,37 @@ public class PlayerCtrl : MonoBehaviour {
         m_myAnim.SetFloat("inputMagnitude", inputMagnitude);
     }
 
+    private void SprintUpdate()
+    {
+        if (Input.GetButton("Sprint"))
+            m_myAnim.SetBool("isSprint", true);
+        else
+            m_myAnim.SetBool("isSprint", false);
+    }
+
+    private void ReloadUpdate()
+    {
+        if (!m_myAnim.GetBool("isReload"))
+        {
+            if (Input.GetButtonDown("Reload") || (m_rifleCtrl.CurrentMagazinNum == 0))
+            {
+                m_myAnim.SetBool("isReload", true);
+                m_myAnim.SetBool("isSprint", false);
+                m_rifleCtrl.PlayMagazineReloadSound();
+                m_rifleCtrl.StopToShooting();
+            }
+        }
+    }
+
+    private void MagazineReload()
+    {
+        m_rifleCtrl.MagazineReload();
+    }
+
     private void LookAt()
     {
-        m_myTransform.eulerAngles = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z);
+        if (!m_myAnim.GetBool("isVault"))
+            m_myTransform.eulerAngles = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z);
     }
 
 

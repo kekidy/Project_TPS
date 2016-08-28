@@ -1,7 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public struct RaycastHitInfomation
+{
+    public bool       isHit;
+    public RaycastHit rayHit;
+
+    public RaycastHitInfomation(bool _isHit, RaycastHit _rayHit = new RaycastHit())
+    {
+        isHit  = _isHit;
+        rayHit = _rayHit;
+    }
+}
+
 public class TPSCameraCtrl : MonoBehaviour {
+    public static TPSCameraCtrl Instance { get; private set; }
+
     [Header("TargetTraceInfo")]
     [SerializeField] private Transform m_traceTargetTransform = null;
     [SerializeField] private Vector3   m_distanceOffset       = Vector3.zero;
@@ -24,7 +38,23 @@ public class TPSCameraCtrl : MonoBehaviour {
 
     private bool m_isZoomOn = false;
 
+    public RaycastHitInfomation CameraCenterRaycast
+    {
+        get
+        {
+            Vector3 rayPos = m_myCamera.ScreenToWorldPoint(Vector3.zero);
+            Vector3 rayDir = m_myTransform.forward;
+            RaycastHit rayHit;
+
+            if (Physics.Raycast(rayPos, rayDir, out rayHit, Mathf.Infinity))
+                return new RaycastHitInfomation(true, rayHit);
+            else
+                return new RaycastHitInfomation(false);
+        }
+    }
+
 	void Awake () {
+        Instance          = this;
         m_myTransform     = transform;
         m_myCamera        = GetComponent<Camera>();
         m_ownerAnim       = m_traceTargetTransform.GetComponent<Animator>();
@@ -35,24 +65,27 @@ public class TPSCameraCtrl : MonoBehaviour {
         AngleCalculate();
 
         CameraZoomUpdate();
-	}
+    }
 
     void OnDrawGizmos()
     {
         if (m_traceTargetTransform != null && m_myTransform != null)
         {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(m_myTransform.position, m_traceTargetTransform.position);
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(m_myTransform.position, m_myTransform.position + m_myTransform.forward * 5f);
-            Gizmos.color = Color.white;
+            //Gizmos.color = Color.yellow;
+            //Gizmos.DrawLine(m_myTransform.position, m_traceTargetTransform.position);
+            //Gizmos.color = Color.green;
+            //Gizmos.DrawLine(m_myTransform.position, m_myTransform.position + m_myTransform.forward * 5f);
+            //Gizmos.color = Color.white;
         }
     }
 
     private void AngleCalculate()
     {
-        m_rotY += Input.GetAxis("Mouse X");
-        m_rotX = Mathf.Clamp(m_rotX += -Input.GetAxis("Mouse Y"), m_limitDownVerticalAngle, m_limitUpVerticalAngle);
+        if (!m_ownerAnim.GetBool("isVault"))
+        {
+            m_rotY += Input.GetAxis("Mouse X");
+            m_rotX = Mathf.Clamp(m_rotX += -Input.GetAxis("Mouse Y"), m_limitDownVerticalAngle, m_limitUpVerticalAngle);
+        }
 
         m_myTransform.eulerAngles = new Vector3(m_rotX, m_rotY, 0.0f);
         m_myTransform.position = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
@@ -90,7 +123,7 @@ public class TPSCameraCtrl : MonoBehaviour {
 
     }
 
-    public IEnumerator CameraZoomOn(bool isZoomOn)
+    private IEnumerator CameraZoomOn(bool isZoomOn)
     {
         float zoomProgress = 0f;
         if (isZoomOn)
