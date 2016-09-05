@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UniRx;
+using UniRx.Triggers;
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -20,7 +22,7 @@ public class PlayerCtrl : MonoBehaviour {
         m_myAnim      = GetComponent<Animator>();
         m_cameraTransform = Camera.main.transform;
 	}
-	
+
     void Update()
     {
         MoveUpdate();
@@ -59,16 +61,22 @@ public class PlayerCtrl : MonoBehaviour {
         if (!m_myAnim.GetBool("isReload"))
         {
             if (Input.GetButton("Shot"))
-            {
-                m_myAnim.SetBool("isShot", true);
-                m_rifleCtrl.StartToShooting();
-            }
+                StartToAttack();
             else
-            {
-                m_myAnim.SetBool("isShot", false);
-                m_rifleCtrl.StopToShooting();
-            }
+                StopToAttack();
         }
+    }
+
+    private void StartToAttack()
+    {
+        m_myAnim.SetBool("isShot", true);
+        m_rifleCtrl.StartToShooting();
+    }
+
+    private void StopToAttack()
+    {
+        m_myAnim.SetBool("isShot", false);
+        m_rifleCtrl.StopToShooting();
     }
 
     private void MoveUpdate()

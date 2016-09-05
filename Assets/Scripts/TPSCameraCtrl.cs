@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UniRx;
+using UniRx.Triggers;
 using System.Collections;
 
 public struct RaycastHitInfomation
@@ -63,20 +65,7 @@ public class TPSCameraCtrl : MonoBehaviour {
 
 	void Update () {
         AngleCalculate();
-
         CameraZoomUpdate();
-    }
-
-    void OnDrawGizmos()
-    {
-        if (m_traceTargetTransform != null && m_myTransform != null)
-        {
-            //Gizmos.color = Color.yellow;
-            //Gizmos.DrawLine(m_myTransform.position, m_traceTargetTransform.position);
-            //Gizmos.color = Color.green;
-            //Gizmos.DrawLine(m_myTransform.position, m_myTransform.position + m_myTransform.forward * 5f);
-            //Gizmos.color = Color.white;
-        }
     }
 
     private void AngleCalculate()
@@ -112,15 +101,10 @@ public class TPSCameraCtrl : MonoBehaviour {
     {
         if (Input.GetButtonDown("Zoom"))
         {
-            if (m_isZoomOn)
-                m_isZoomOn = false;
-            else
-                m_isZoomOn = true;
-
+            m_isZoomOn = !m_isZoomOn;
             StopCoroutine("CameraZoom");
             StartCoroutine("CameraZoomOn", m_isZoomOn);
-        }        
-
+        }
     }
 
     private IEnumerator CameraZoomOn(bool isZoomOn)
