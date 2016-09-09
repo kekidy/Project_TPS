@@ -58,7 +58,7 @@ public class PlayerCtrl : MonoBehaviour {
 
     private void AttackUpdate()
     {
-        if (!m_myAnim.GetBool("isReload"))
+        if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isSprint"))
         {
             if (Input.GetButton("Shot"))
                 StartToAttack();
@@ -99,21 +99,27 @@ public class PlayerCtrl : MonoBehaviour {
     private void SprintUpdate()
     {
         if (Input.GetButton("Sprint"))
+        {
             m_myAnim.SetBool("isSprint", true);
+            m_rifleCtrl.StopToShooting();
+        }
         else
             m_myAnim.SetBool("isSprint", false);
     }
 
     private void ReloadUpdate()
     {
-        if (!m_myAnim.GetBool("isReload"))
+        if (!m_myAnim.GetBool("isReload") && (m_rifleCtrl.CurrentMagazinNum != m_rifleCtrl.MaxMagazineNum))
         {
             if (Input.GetButtonDown("Reload") || (m_rifleCtrl.CurrentMagazinNum == 0))
             {
                 m_myAnim.SetBool("isReload", true);
                 m_myAnim.SetBool("isSprint", false);
+
                 m_rifleCtrl.PlayMagazineReloadSound();
                 m_rifleCtrl.StopToShooting();
+
+                TPSCameraCtrl.Instance.SetCameraZoom(false);
             }
         }
     }

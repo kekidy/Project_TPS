@@ -10,14 +10,14 @@ public class RifleCtrl : MonoBehaviour {
     [SerializeField] private float m_rateOfFireSeconds = 0f;
 
     [Header("Effect")]
-    [SerializeField] private GameObject m_muzzleObj           = null;
+    [SerializeField] private GameObject m_muzzleObj          = null;
     [SerializeField] private GameObject m_bulletImpactPrefab = null;
 
     [Header("Sound")]
-    [SerializeField] private GunSound m_fireSound;
-    [SerializeField] private GunSound m_reloadSound;
+    [SerializeField] private GunSound m_fireSound   = null;
+    [SerializeField] private GunSound m_reloadSound = null;
 
-    [SerializeField] private Text m_magazineText;
+    [SerializeField] private Text m_magazineText = null;
 
     public int MaxMagazineNum    { get { return m_maxMagazineNum; } }
     public int CurrentMagazinNum { get; private set; }

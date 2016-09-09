@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
 public class CrosshairCtrl : MonoBehaviour {
-    [SerializeField] private Sprite    m_normalSprite;
-    [SerializeField] private Sprite    m_takeAimSprite;
+    [SerializeField] private Sprite    m_normalSprite  = null;
+    [SerializeField] private Sprite    m_takeAimSprite = null;
 
     private Image     m_myImage;
 

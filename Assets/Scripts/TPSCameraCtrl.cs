@@ -21,6 +21,7 @@ public class TPSCameraCtrl : MonoBehaviour {
     [Header("TargetTraceInfo")]
     [SerializeField] private Transform m_traceTargetTransform = null;
     [SerializeField] private Vector3   m_distanceOffset       = Vector3.zero;
+    [SerializeField] private Transform m_targetHeadTransform  = null;
 
     [Header("Angle")]
     [SerializeField] private float     m_limitUpVerticalAngle   = 0f;
@@ -68,6 +69,11 @@ public class TPSCameraCtrl : MonoBehaviour {
         CameraZoomUpdate();
     }
 
+    void LateUpdate()
+    {
+        SpringArmUpdate();
+    }
+
     private void AngleCalculate()
     {
         if (!m_ownerAnim.GetBool("isVault"))
@@ -100,11 +106,21 @@ public class TPSCameraCtrl : MonoBehaviour {
     private void CameraZoomUpdate()
     {
         if (Input.GetButtonDown("Zoom"))
-        {
-            m_isZoomOn = !m_isZoomOn;
-            StopCoroutine("CameraZoom");
-            StartCoroutine("CameraZoomOn", m_isZoomOn);
-        }
+            SetCameraZoom(!m_isZoomOn);
+    }
+
+    public void SetCameraZoom(bool isZoomOn)
+    {
+        m_isZoomOn = isZoomOn;
+        StopCoroutine("CameraZoom");
+        StartCoroutine("CameraZoomOn", m_isZoomOn);
+    }
+
+    private void SpringArmUpdate()
+    {
+        RaycastHit hit;
+        if (Physics.Linecast(m_targetHeadTransform.position, m_myTransform.position, out hit))
+            m_myTransform.position = hit.point;
     }
 
     private IEnumerator CameraZoomOn(bool isZoomOn)
