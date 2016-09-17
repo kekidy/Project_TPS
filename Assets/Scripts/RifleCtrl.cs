@@ -76,21 +76,26 @@ public class RifleCtrl : MonoBehaviour {
 
             m_fireSound.PlaySound(m_myAudio);
 
-            var rayHitInfo = TPSCameraCtrl.Instance.CameraCenterRaycast;
-            if (rayHitInfo.isHit)
+            if (TPSCameraCtrl.Instance.IsRayHit)
             {
-                RaycastHit rayHit = rayHitInfo.rayHit;
+                RaycastHit rayHit = TPSCameraCtrl.Instance.RayHit;
                 GameObject impact = Instantiate(m_bulletImpactPrefab, rayHit.point, Quaternion.LookRotation(rayHit.normal)) as GameObject;
-                Destroy(impact, 6.0f);
+                Destroy(impact, 1.5f);
             }
 
             if (CurrentMagazinNum == 0)
+            {
+                m_muzzleObj.SetActive(false);
                 break;
+            }
 
             yield return m_fireWaitSeconds;
 
             if (m_isFire == false)
+            {
+                m_muzzleObj.SetActive(false);
                 break;
+            }
         }
     }
 }

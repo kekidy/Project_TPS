@@ -14,6 +14,7 @@ public class PlayerCtrl : MonoBehaviour {
 	private Transform m_myTransform;
     private Animator  m_myAnim;
     private Transform m_cameraTransform;
+    private CapsuleCollider m_myCollider;
 
     private float m_ikLeftHandWeight = 1f;
 
@@ -21,6 +22,7 @@ public class PlayerCtrl : MonoBehaviour {
         m_myTransform = transform;
         m_myAnim      = GetComponent<Animator>();
         m_cameraTransform = Camera.main.transform;
+        m_myCollider  = GetComponent<CapsuleCollider>();
 	}
 
     void Update()
@@ -29,6 +31,7 @@ public class PlayerCtrl : MonoBehaviour {
         AttackUpdate();
         SprintUpdate();
         ReloadUpdate();
+        SitUpdate();
     }
 
 	void LateUpdate () {
@@ -47,11 +50,11 @@ public class PlayerCtrl : MonoBehaviour {
             m_ikLeftHandWeight = 0f;
     }
 
-    void OnCollisionStay(Collision col)
+    void OnTriggerStay(Collider col)
     {
-        if (col.collider.tag == "Vault")
+        if (col.tag == "Vault")
         {
-            if (!m_myAnim.GetBool("isVault") && Input.GetAxis("Vertical") > 0f)
+            if (!m_myAnim.GetBool("isVault") && Input.GetKeyDown(KeyCode.Space))
                 m_myAnim.SetTrigger("vaultTrigger");
         }
     }
@@ -87,7 +90,7 @@ public class PlayerCtrl : MonoBehaviour {
         float   inputMagnitude = direction.magnitude;
 
         if (inputMagnitude >= 0.5f)
-            m_myAnim.SetFloat("moveStartAngle", Quaternion.LookRotation(direction, Vector3.up).eulerAngles.y);
+            m_myAnim.SetFloat("moveStartAngle", Quaternion.LookRotation(direction).eulerAngles.y);
         else
             m_myAnim.SetFloat("moveStopAngle", m_myAnim.GetFloat("moveStartAngle"));
 
@@ -124,6 +127,27 @@ public class PlayerCtrl : MonoBehaviour {
         }
     }
 
+    private void SitUpdate()
+    {
+        if (Input.GetButtonDown("Sit"))
+        {
+            bool isSit = !m_myAnim.GetBool("isSit");
+            m_myAnim.SetBool("isSit", isSit);
+
+            if (isSit)
+            {
+                m_myCollider.center = new Vector3(0f, 0.4f, 0f);
+                m_myCollider.height = 0.8f;
+            }
+            else
+            {
+                m_myCollider.center = new Vector3(0f, 0.8f, 0f);
+                m_myCollider.height = 1.6f;
+            }
+
+        }
+    }
+
     private void MagazineReload()
     {
         m_rifleCtrl.MagazineReload();
@@ -134,6 +158,4 @@ public class PlayerCtrl : MonoBehaviour {
         if (!m_myAnim.GetBool("isVault"))
             m_myTransform.eulerAngles = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z);
     }
-
-
 }

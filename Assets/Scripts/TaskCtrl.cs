@@ -7,11 +7,11 @@ public enum TaskSpriteType { NORMAL = 0, SUCCESS }
 public class TaskCtrl : MonoBehaviour {
     [SerializeField] private Sprite m_normalSprite;
     [SerializeField] private Sprite m_successSprtie;
-    [SerializeField] private TaskSpriteType m_currentSpriteType;
-
-    private GameObject m_myGameObject;
+    
+    
     private Image m_myImage;
     private Text  m_myText;
+    private TaskSpriteType m_currentSpriteType;
 
     public TaskSpriteType TaskSpriteType
     {
@@ -29,16 +29,8 @@ public class TaskCtrl : MonoBehaviour {
         set { m_myText.text = value; }
     }
 
-    public bool GameObjectActive
-    {
-        get { return m_myGameObject.activeSelf; }
-        set { m_myGameObject.SetActive(value); }
-    }
-
 	void Awake () {
-        m_myGameObject = gameObject;
         m_myImage      = GetComponent<Image>();
         m_myText       = GetComponentInChildren<Text>();
-        TaskSpriteType = m_currentSpriteType;
 	}
 }

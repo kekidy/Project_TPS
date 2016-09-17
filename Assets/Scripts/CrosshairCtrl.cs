@@ -15,13 +15,11 @@ public class CrosshairCtrl : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        var rayHitInfo = TPSCameraCtrl.Instance.CameraCenterRaycast;
-
-        if (rayHitInfo.isHit)
+	void LateUpdate () {
+        if (TPSCameraCtrl.Instance.IsRayHit)
         {
-            RaycastHit rayHit = rayHitInfo.rayHit;
-            if (rayHit.collider.tag == "AimTarget")
+            RaycastHit rayHit = TPSCameraCtrl.Instance.RayHit;
+            if (rayHit.collider.tag == "Enemy")
                 m_myImage.sprite = m_takeAimSprite;
             else
                 m_myImage.sprite = m_normalSprite;

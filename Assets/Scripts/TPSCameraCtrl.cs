@@ -31,30 +31,20 @@ public class TPSCameraCtrl : MonoBehaviour {
     [SerializeField] private float     m_zoomViewValue          = 30f;
     [SerializeField] private float     m_zoomCompleteSeconds    = 1f;
 
-    private Animator  m_ownerAnim   = null;
-    private Transform m_myTransform = null;
-    private Camera    m_myCamera    = null;
+    private Animator   m_ownerAnim   = null;
+    private Transform  m_myTransform = null;
+    private Camera     m_myCamera    = null;
+    private RaycastHit m_rayHit      = new RaycastHit();
 
     private float m_rotX = 0f;
     private float m_rotY = 0f;
     private float m_normalViewValue = 0f;
 
     private bool m_isZoomOn = false;
+    private bool m_isRayHit = false;
 
-    public RaycastHitInfomation CameraCenterRaycast
-    {
-        get
-        {
-            Vector3 rayPos = m_myCamera.ScreenToWorldPoint(Vector3.zero);
-            Vector3 rayDir = m_myTransform.forward;
-            RaycastHit rayHit;
-
-            if (Physics.Raycast(rayPos, rayDir, out rayHit, Mathf.Infinity))
-                return new RaycastHitInfomation(true, rayHit);
-            else
-                return new RaycastHitInfomation(false);
-        }
-    }
+    public RaycastHit RayHit   { get { return m_rayHit;   } }
+    public bool       IsRayHit { get { return m_isRayHit; } }
 
 	void Awake () {
         Instance          = this;
@@ -67,11 +57,19 @@ public class TPSCameraCtrl : MonoBehaviour {
 	void Update () {
         AngleCalculate();
         CameraZoomUpdate();
+        CameraCenterRaycastUpdate();
     }
 
     void LateUpdate()
     {
         SpringArmUpdate();
+    }
+
+    private void CameraCenterRaycastUpdate()
+    {
+        Vector3 rayPos = m_myCamera.ScreenToWorldPoint(Vector3.zero);
+        Vector3 rayDir = m_myTransform.forward;
+        m_isRayHit = Physics.Raycast(rayPos, rayDir, out m_rayHit, Mathf.Infinity);
     }
 
     private void AngleCalculate()
@@ -83,7 +81,15 @@ public class TPSCameraCtrl : MonoBehaviour {
         }
 
         m_myTransform.eulerAngles = new Vector3(m_rotX, m_rotY, 0.0f);
-        m_myTransform.position = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
+
+        if (m_ownerAnim.GetBool("isVault"))
+        {
+            Vector3 alivePos = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
+            alivePos.y = m_myTransform.position.y;
+            m_myTransform.position = alivePos;
+        }
+        else
+            m_myTransform.position = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
 
         float myAngleY     = m_myTransform.rotation.eulerAngles.y;
         float targetAngleY = m_traceTargetTransform.rotation.eulerAngles.y;
@@ -120,7 +126,7 @@ public class TPSCameraCtrl : MonoBehaviour {
     {
         RaycastHit hit;
         if (Physics.Linecast(m_targetHeadTransform.position, m_myTransform.position, out hit))
-            m_myTransform.position = hit.point;
+            m_myTransform.position = hit.point + (hit.normal * 0.04f);
     }
 
     private IEnumerator CameraZoomOn(bool isZoomOn)
