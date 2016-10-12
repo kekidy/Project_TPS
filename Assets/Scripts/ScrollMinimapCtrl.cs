@@ -11,10 +11,11 @@ public class ScrollMinimapCtrl : MonoBehaviour {
     [SerializeField] private RectTransform m_angleScrollerRectTansform       = null;
     [SerializeField] private RectTransform m_targetIconRectTransform = null;
     [SerializeField] private float m_angleMultiplicatinValue = 0f;
-    
-    public Transform testPosition;
 
+    private Vector3 m_targetPoint = Vector3.zero;
     private float m_negativeStartAngle = 0;
+
+    public Vector3 TargetPoint { set { m_targetPoint = value; } }
 
 	void Awake () {
         if (Instance)
@@ -37,8 +38,8 @@ public class ScrollMinimapCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Subscribe(_ => {
-                float angle = Vector3.Angle(m_playerTransform.forward, testPosition.position - m_playerTransform.position);
-                Vector3 cross = Vector3.Cross(m_playerTransform.forward, testPosition.position - m_playerTransform.position);
+                float angle = Vector3.Angle(m_playerTransform.forward, m_targetPoint - m_playerTransform.position);
+                Vector3 cross = Vector3.Cross(m_playerTransform.forward, m_targetPoint - m_playerTransform.position);
                 float rivisionAngle = cross.y < 0 ? -angle : angle;
 
                 m_targetIconRectTransform.localPosition = new Vector3(rivisionAngle * m_angleMultiplicatinValue, 0f, 0f);

@@ -2,6 +2,7 @@
 using UniRx;
 using UniRx.Triggers;
 using System.Collections;
+using EasyEditor;
 
 public struct RaycastHitInfomation
 {
@@ -18,16 +19,16 @@ public struct RaycastHitInfomation
 public class TPSCameraCtrl : MonoBehaviour {
     public static TPSCameraCtrl Instance { get; private set; }
 
-    [Header("TargetTraceInfo")]
+    [Inspector(group = "Target Trace Info")]
     [SerializeField] private Transform m_traceTargetTransform = null;
     [SerializeField] private Vector3   m_distanceOffset       = Vector3.zero;
     [SerializeField] private Transform m_targetHeadTransform  = null;
 
-    [Header("Angle")]
+    [Inspector(group = "Angle")]
     [SerializeField] private float     m_limitUpVerticalAngle   = 0f;
     [SerializeField] private float     m_limitDownVerticalAngle = 0f;
 
-    [Header("Zoom")]
+    [Inspector(group = "Zoom")]
     [SerializeField] private float     m_zoomViewValue          = 30f;
     [SerializeField] private float     m_zoomCompleteSeconds    = 1f;
 

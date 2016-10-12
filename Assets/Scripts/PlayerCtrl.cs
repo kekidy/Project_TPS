@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
-using UniRx;
-using UniRx.Triggers;
+using EasyEditor;
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -8,7 +7,7 @@ using System.Collections;
 public class PlayerCtrl : MonoBehaviour {
     [SerializeField] private RifleCtrl m_rifleCtrl;
 
-    [Header("IK Target")]
+    [Inspector(group = "IK Target")]
     [SerializeField] private Transform leftHandTarget;
 
 	private Transform m_myTransform;
@@ -48,6 +47,13 @@ public class PlayerCtrl : MonoBehaviour {
         }
         else
             m_ikLeftHandWeight = 0f;
+    }
+
+    void OnDisable()
+    {
+        m_rifleCtrl.StopToShooting();
+
+        WayNavigationSystem.Instance.ShowWayNavigation = false;
     }
 
     void OnTriggerStay(Collider col)
@@ -157,5 +163,11 @@ public class PlayerCtrl : MonoBehaviour {
     {
         if (!m_myAnim.GetBool("isVault"))
             m_myTransform.eulerAngles = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z);
+    }
+
+    public void AnimatorChange(string animatorName)
+    {
+        Resources.UnloadAsset(m_myAnim.runtimeAnimatorController);
+        m_myAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("Animators/" + animatorName);
     }
 }
