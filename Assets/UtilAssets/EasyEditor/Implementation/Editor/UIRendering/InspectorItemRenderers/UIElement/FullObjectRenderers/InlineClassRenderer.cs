@@ -20,14 +20,18 @@ namespace EasyEditor
     public class InlineClassRenderer : FullObjectRenderer 
     {
         public object subtarget{get; private set;}
+        public string FoldoutTitle{set{foldoutTitle = value;}}
         private string foldoutTitle = "";
         private bool foldout = Settings.inlineUnfolded;
 
         public override void InitializeFromEntityInfo(EntityInfo entityInfo)
         {
             base.InitializeFromEntityInfo(entityInfo);
-            
-            foldoutTitle = ObjectNames.NicifyVariableName(entityInfo.fieldInfo.Name);
+
+            if(entityInfo.isField)
+            {
+                foldoutTitle = ObjectNames.NicifyVariableName(entityInfo.fieldInfo.Name);
+            }
         }
 
         protected override void InitializeRenderersList()
@@ -55,13 +59,22 @@ namespace EasyEditor
 
         protected override void RetrieveGroupList()
         {
-            if(typeof(UEObject).IsAssignableFrom(entityInfo.fieldInfo.FieldType))
+            Type classType = GetClassType();
+
+            if(classType != null)
             {
-                RetrieveObjectClassGroup();
+                if(typeof(UEObject).IsAssignableFrom(classType))
+                {
+                    RetrieveObjectClassGroup();
+                }
+                else
+                {
+                    RetrieveCustomClassGroup();
+                }
             }
             else
             {
-                RetrieveCustomClassGroup();
+                groups = new Groups(new string[]{""});
             }
         }
 
@@ -81,8 +94,8 @@ namespace EasyEditor
                         GetField ("m_EditorForChildClasses", BindingFlags.NonPublic | BindingFlags.Instance).
                             GetValue (customEditorAttribute);
 
-                    if (entityInfo.fieldInfo.FieldType == inspectedType
-                        || (inspectedType.IsAssignableFrom(entityInfo.fieldInfo.FieldType) 
+                    if (GetClassType() == inspectedType
+                        || (inspectedType.IsAssignableFrom(GetClassType()) 
                         && editorForChildClasses))
                     {
                         GroupsAttribute groupAttribute = AttributeHelper.GetAttribute<GroupsAttribute>(editorScript);
@@ -108,7 +121,7 @@ namespace EasyEditor
 
         private void RetrieveCustomClassGroup()
         {
-            GroupsAttribute groupAttribute = AttributeHelper.GetAttribute<GroupsAttribute>(entityInfo.fieldInfo.FieldType);
+            GroupsAttribute groupAttribute = AttributeHelper.GetAttribute<GroupsAttribute>(GetClassType());
             if (groupAttribute != null)
             {
                 groups = new Groups(groupAttribute.groups);
@@ -123,7 +136,7 @@ namespace EasyEditor
         {
             EditorGUILayout.BeginVertical(InspectorStyle.DefaultStyle.inlineFoldableBackgroundStyle);
 
-            if(typeof(UEObject).IsAssignableFrom(entityInfo.fieldInfo.FieldType))
+            if(typeof(UEObject).IsAssignableFrom(GetClassType()))
             {
                 RenderObjectClass(preRender);
             }
@@ -137,10 +150,14 @@ namespace EasyEditor
 
         void RenderCustomClass(Action preRender = null)
         {
+            serializedObject.ApplyModifiedProperties();
+            serializedObject.Update();
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(15);
 
             EditorGUILayout.BeginVertical();
+
             foldout = EditorGUILayout.Foldout(foldout, foldoutTitle);
             if (foldout)
             {
@@ -148,21 +165,24 @@ namespace EasyEditor
                 base.Render(preRender);
                 EditorGUILayout.EndVertical();
             }
+
             EditorGUILayout.EndVertical();
             EditorGUILayout.EndHorizontal();
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         SerializedObject subSerializedObject = null;
         void RenderObjectClass(Action preRender = null)
         {
-            serializedObject.Update();
-
             EditorGUILayout.PropertyField(FieldInfoHelper.GetSerializedPropertyFromPath(entityInfo.propertyPath, 
                                                                                         serializedObject));
-            serializedObject.ApplyModifiedProperties();
 
             if(subtarget != null)
             {
+                CreateSerializedObject();
+                subSerializedObject.Update();
+
                 EditorGUI.indentLevel += 2 * Settings.indentation;
 
                 foldout = EditorGUILayout.Foldout(foldout, "");
@@ -175,8 +195,10 @@ namespace EasyEditor
                         
                     EditorGUILayout.EndHorizontal();
                 }
-
+            
                 EditorGUI.indentLevel -= 2 * Settings.indentation;
+
+                subSerializedObject.ApplyModifiedProperties();
             }
 
             CheckIfTargetNotNull();
@@ -206,6 +228,21 @@ namespace EasyEditor
                     subtargetWasNull = false;
                 }
             }
+        }
+
+        private Type GetClassType()
+        {
+            Type classType = null;
+            if(entityInfo.isField)
+            {
+                classType = entityInfo.fieldInfo.FieldType;
+            }
+            else if(entityInfo.isType)
+            {
+                classType = entityInfo.type;
+            }
+
+            return classType;
         }
     }
 }

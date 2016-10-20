@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2016 Easy Editor 
 // All Rights Reserved 
 //  
@@ -97,12 +97,6 @@ namespace EasyEditor
                     (type.IsArray && type.GetElementType() == typeof(T))
                     || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>) && type.GetGenericArguments() [0] == typeof(T))
                     );
-        }
-
-        public static bool IsDisplayableDictionary(Type type)
-        {
-            return (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>) 
-                    && IsSerializedTypeInUnity(type.GetGenericArguments() [0]) && IsSerializedTypeInUnity(type.GetGenericArguments() [1]));
         }
 
         public static bool HasSerializedFieldAttribute(FieldInfo fieldInfo)
@@ -222,7 +216,23 @@ namespace EasyEditor
                 result = sourceObject.GetType().GetField(pathTable[0], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 for (int i = 1; i<pathTable.Length; i++)
                 {
-                    result = result.GetType().GetField(pathTable[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    if(pathTable[i] == "Array")
+                    {
+                        if(i == pathTable.Length - 2)
+                        {
+                            Debug.LogError("The path of type ....Array.data[x] leads to an array element. You have to stop at the array or look for " +
+                                "a field inside the array element with a path similar to Array.data[x].field.");
+                        }
+                        else
+                        {
+                            result = result.FieldType.GetField(pathTable[i + 2], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                            i += 1;
+                        }
+                    }
+                    else
+                    {
+                        result = result.FieldType.GetField(pathTable[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    }
                 }
             }
             
@@ -244,6 +254,11 @@ namespace EasyEditor
                 if(i == 0)
                 {
                     result = serializedObject.FindProperty(splitPath[0]);
+                }
+                else if(result.isArray)
+                {
+                    result = result.FindPropertyRelative(splitPath[i] + "." + splitPath[i+1]);
+                    i++;
                 }
                 else if(result.propertyType == SerializedPropertyType.ObjectReference)
                 {
@@ -280,10 +295,9 @@ namespace EasyEditor
                     {
                         int firstBracket = pathTable[i+1].IndexOf('[');
                         int secondBracket = pathTable[i+1].IndexOf(']');
-
                         string arrayIndex = pathTable[i+1].Substring(firstBracket + 1, secondBracket - firstBracket - 1);
                         result = ((IList) result)[int.Parse(arrayIndex)];
-                        i += 2;
+                        i ++;
                     }
                     else
                     {

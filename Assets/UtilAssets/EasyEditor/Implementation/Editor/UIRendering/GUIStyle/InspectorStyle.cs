@@ -5,6 +5,7 @@
 //
 
 using UnityEngine;
+using UnityEditor;
 using System.Collections;
 
 namespace EasyEditor
@@ -18,6 +19,7 @@ namespace EasyEditor
         public GUIStyle foldableGroupHeaderStyle { get ; private set; }
         public GUIStyle groupDescriptionStyle { get ; private set; }
         public GUIStyle inlineFoldableBackgroundStyle { get ; private set; }
+        public GUIStyle foldableObjectStyle { get ; private set; }
 
 	    private static InspectorStyle defaultStyle;
 
@@ -39,6 +41,7 @@ namespace EasyEditor
             groupDescriptionStyle = GetTitleDescriptionStyle();
             foldableGroupHeaderStyle = GetFoldableGroupHeaderStyle();
             inlineFoldableBackgroundStyle = GetInlineFoldableBackgroundStyle();
+            foldableObjectStyle = GetFoldableObjectStyle();
 	    }
 
         private GUIStyle GetTitleDescriptionStyle()
@@ -63,8 +66,15 @@ namespace EasyEditor
         private GUIStyle GetInlineFoldableBackgroundStyle()
         {
             GUIStyle inlineFoldableBackgroundStyle = new GUIStyle((GUIStyle) "Box");
-            //inlineFoldableBackgroundStyle.padding = new RectOffset(0, 0, 0, 0);
             return inlineFoldableBackgroundStyle;
+        }
+
+        private GUIStyle GetFoldableObjectStyle()
+        {
+            GUIStyle foldableObjectStyle = new GUIStyle(EditorStyles.foldout);
+            foldableObjectStyle.font = (new GUIStyle((GUIStyle)"OL title")).font;
+
+            return foldableObjectStyle;
         }
 	}
 }

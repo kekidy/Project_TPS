@@ -12,11 +12,21 @@ namespace EasyEditor
     [CustomPropertyDrawer(typeof(TextureAttribute))]
     public class TextureDrawer : PropertyDrawer 
     {
+        UEObject newTexture;
+
     	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     	{
             if(fieldInfo.FieldType.IsAssignableFrom(typeof(Texture2D)))
             {
-                property.objectReferenceValue = EditorGUILayout.ObjectField(property.name, property.objectReferenceValue, typeof(Texture), true);
+                EditorGUI.BeginChangeCheck ();
+                EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+                newTexture = EditorGUILayout.ObjectField(property.name, property.objectReferenceValue, typeof(Texture), true);
+                EditorGUI.showMixedValue = false;
+
+                if (EditorGUI.EndChangeCheck ())
+                {
+                    property.objectReferenceValue = newTexture;
+                }
             }
             else
             {

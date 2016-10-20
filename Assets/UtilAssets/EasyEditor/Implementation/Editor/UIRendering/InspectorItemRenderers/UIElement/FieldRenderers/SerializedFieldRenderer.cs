@@ -46,9 +46,9 @@ namespace EasyEditor
         {
             base.Render(preRender);
 
-            intermediarySerializedObject.Update();
+            directParentSerializedObject.Update();
             EditorGUILayout.PropertyField(serializedProperty, new GUIContent(label), true, GUILayout.MinWidth(30f)); 
-            intermediarySerializedObject.ApplyModifiedProperties();
+            directParentSerializedObject.ApplyModifiedProperties();
         }
 	}
 }

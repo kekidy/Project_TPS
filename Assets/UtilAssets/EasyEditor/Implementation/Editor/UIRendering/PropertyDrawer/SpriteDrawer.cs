@@ -12,11 +12,21 @@ namespace EasyEditor
     [CustomPropertyDrawer(typeof(SpriteAttribute))]
     public class SpriteDrawer : PropertyDrawer 
     {
+        UEObject newSprite;
+
     	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     	{
             if(fieldInfo.FieldType.IsAssignableFrom(typeof(Sprite)))
             {
-                property.objectReferenceValue = EditorGUILayout.ObjectField(property.name, property.objectReferenceValue, typeof(Sprite), true);
+                EditorGUI.BeginChangeCheck ();
+                EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+                newSprite = EditorGUILayout.ObjectField(property.name, property.objectReferenceValue, typeof(Sprite), true);
+                EditorGUI.showMixedValue = false;
+
+                if (EditorGUI.EndChangeCheck ())
+                {
+                    property.objectReferenceValue = newSprite;
+                }
             }
             else
             {

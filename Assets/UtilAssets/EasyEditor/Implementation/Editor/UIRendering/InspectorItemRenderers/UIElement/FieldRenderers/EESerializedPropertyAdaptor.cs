@@ -9,11 +9,14 @@ using UnityEditor;
 using UEObject = UnityEngine.Object;
 using System.Collections;
 using EasyEditor.ReorderableList;
+using System;
 
 namespace EasyEditor
 {
     public class EESerializedPropertyAdaptor : SerializedPropertyAdaptor, IReorderableListDropTarget
     {
+        public Action<int, SerializedProperty> OnItemSelected;
+
         private bool isReadOnly;
 
         public EESerializedPropertyAdaptor(SerializedProperty arrayProperty, bool isReadOnly) : base(arrayProperty)
@@ -59,6 +62,25 @@ namespace EasyEditor
                 {
                     _arrayProperty.InsertArrayElementAtIndex(insertionIndex + i);
                     _arrayProperty.GetArrayElementAtIndex(insertionIndex + i).objectReferenceValue = DragAndDrop.objectReferences[i];
+                }
+            }
+        }
+
+        public override void DrawItem(Rect position, int index)
+        {
+            base.DrawItem(position, index);
+
+            int controlID = GUIUtility.GetControlID(FocusType.Passive);
+            if(Event.current.GetTypeForControl(controlID) == EventType.MouseDown) 
+            {
+                //Drag handle are more on the left of the drawn item.
+                position.x -= 22; 
+                if (Event.current.button == 0 && position.Contains(Event.current.mousePosition)) 
+                {
+                    if(OnItemSelected != null)
+                    {
+                        OnItemSelected(index, _arrayProperty);
+                    }
                 }
             }
         }

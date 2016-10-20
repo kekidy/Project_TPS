@@ -17,7 +17,7 @@ namespace EasyEditor
     			    result = GetAttribute<T>(entityInfo.fieldInfo);
                 }
     		}
-    		else
+    		else if(entityInfo.isMethod)
     		{
     			result = GetAttribute<T>(entityInfo.methodInfo);
     		}
@@ -27,13 +27,13 @@ namespace EasyEditor
 
     	public static T[] GetAttributes<T>(EntityInfo entityInfo) where T : Attribute
     	{
-    		T[] results;
+    		T[] results = null;
     		
     		if (entityInfo.isField) 
     		{
     			results = GetAttributes<T>(entityInfo.fieldInfo);
     		}
-    		else
+            else if(entityInfo.isMethod)
     		{
     			results = GetAttributes<T>(entityInfo.methodInfo);
     		}

@@ -1,4 +1,4 @@
-﻿Shader "Forge3D/Force Field Static"
+﻿Shader "FORGE3D/Force Field/Force Field Static"
 {
 	Properties
 	{			

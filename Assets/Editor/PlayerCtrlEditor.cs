@@ -1,8 +1,8 @@
 ﻿using UnityEditor;
-using EasyEditor;
 using System.Collections;
+using EasyEditor;
 
-[Groups("IK Target")]
+[Groups("Player Status", "Weapon", "IK Target")]
 [CustomEditor(typeof(PlayerCtrl))]
 public class PlayerCtrlEditor : EasyEditorBase {
 }

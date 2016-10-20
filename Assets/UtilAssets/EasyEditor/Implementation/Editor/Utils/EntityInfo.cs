@@ -22,13 +22,17 @@ namespace EasyEditor
     	public readonly MethodInfo methodInfo;
     	public readonly object caller;
 
+        public readonly Type type;
+
     	public readonly bool isField;
     	public readonly bool isMethod;
+        public readonly bool isType;
 
         public EntityInfo(FieldInfo fieldInfo, SerializedObject serializedObject, string propertyPath = "")
     	{
             isField = true;
             isMethod = false;
+            isType = false;
             this.fieldInfo = fieldInfo;
             this.propertyPath = propertyPath;
             this.serializedObject = serializedObject;
@@ -38,8 +42,20 @@ namespace EasyEditor
         {
             isField = false;
             isMethod = true;
+            isType = false;
             this.methodInfo = methodInfo;
             this.caller = caller;
+            this.serializedObject = serializedObject;
+        }
+
+        public EntityInfo(Type type, SerializedObject serializedObject, string propertyPath = "")
+        {
+            isField = false;
+            isMethod = false;
+            isType = true;
+
+            this.type = type;
+            this.propertyPath = propertyPath;
             this.serializedObject = serializedObject;
         }
 

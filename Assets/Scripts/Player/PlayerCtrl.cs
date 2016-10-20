@@ -1,0 +1,177 @@
+﻿using UnityEngine;
+using EasyEditor;
+using System.Collections;
+
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
+public class PlayerCtrl : MonoBehaviour {
+    [Inspector(group = "Player Status")]
+    [SerializeField] private float m_hp;
+
+    [Inspector(group = "Weapon")]
+    [SerializeField] private RifleCtrl m_rifleCtrl;
+
+    [Inspector(group = "IK Target")]
+    [SerializeField] private Transform leftHandTarget;
+
+	private Transform m_myTransform;
+    private Animator  m_myAnim;
+    private Transform m_cameraTransform;
+    private CapsuleCollider m_myCollider;
+
+    private float m_ikLeftHandWeight = 1f;
+
+	void Awake () {
+        m_myTransform = transform;
+        m_myAnim      = GetComponent<Animator>();
+        m_cameraTransform = Camera.main.transform;
+        m_myCollider  = GetComponent<CapsuleCollider>();
+	}
+
+    void Update()
+    {
+        MoveUpdate();
+        AttackUpdate();
+        SprintUpdate();
+        ReloadUpdate();
+        SitUpdate();
+    }
+
+	void LateUpdate () {
+       LookAt();
+	}
+
+    void OnAnimatorIK(int layer)
+    {
+        if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isVault"))
+        {
+            m_ikLeftHandWeight = Mathf.MoveTowards(m_ikLeftHandWeight, 1f, Time.smoothDeltaTime * 2f);
+            m_myAnim.SetIKPositionWeight(AvatarIKGoal.LeftHand, m_ikLeftHandWeight);
+            m_myAnim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
+        }
+        else
+            m_ikLeftHandWeight = 0f;
+    }
+
+    void OnDisable()
+    {
+        m_rifleCtrl.StopToShooting();
+
+        WayNavigationSystem.Instance.ShowWayNavigation = false;
+    }
+
+    void OnTriggerStay(Collider col)
+    {
+        if (col.tag == "Vault")
+        {
+            if (!m_myAnim.GetBool("isVault") && Input.GetKeyDown(KeyCode.Space))
+                m_myAnim.SetTrigger("vaultTrigger");
+        }
+    }
+
+    private void AttackUpdate()
+    {
+        if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isSprint"))
+        {
+            if (Input.GetButton("Shot"))
+                StartToAttack();
+            else
+                StopToAttack();
+        }
+    }
+
+    private void StartToAttack()
+    {
+        m_myAnim.SetBool("isShot", true);
+        m_rifleCtrl.StartToShooting();
+    }
+
+    private void StopToAttack()
+    {
+        m_myAnim.SetBool("isShot", false);
+        m_rifleCtrl.StopToShooting();
+    }
+
+    private void MoveUpdate()
+    {
+        float   vertical   = Input.GetAxis("Vertical");
+        float   horizontal = Input.GetAxis("Horizontal");
+        Vector3 direction  = ((Vector3.forward * vertical) + (Vector3.right * horizontal));
+        float   inputMagnitude = direction.magnitude;
+
+        if (inputMagnitude >= 0.5f)
+            m_myAnim.SetFloat("moveStartAngle", Quaternion.LookRotation(direction).eulerAngles.y);
+        else
+            m_myAnim.SetFloat("moveStopAngle", m_myAnim.GetFloat("moveStartAngle"));
+
+        m_myAnim.SetFloat("vertical", vertical);
+        m_myAnim.SetFloat("horizontal", horizontal);
+        m_myAnim.SetFloat("inputMagnitude", inputMagnitude);
+    }
+
+    private void SprintUpdate()
+    {
+        if (Input.GetButton("Sprint"))
+        {
+            m_myAnim.SetBool("isSprint", true);
+            m_rifleCtrl.StopToShooting();
+        }
+        else 
+            m_myAnim.SetBool("isSprint", false);
+    }
+
+    private void ReloadUpdate()
+    {
+        if (!m_myAnim.GetBool("isReload") && (m_rifleCtrl.CurrentMagazinNum != m_rifleCtrl.MaxMagazineNum))
+        {
+            if (Input.GetButtonDown("Reload") || (m_rifleCtrl.CurrentMagazinNum == 0))
+            {
+                m_myAnim.SetBool("isReload", true);
+                m_myAnim.SetBool("isSprint", false);
+
+                m_rifleCtrl.PlayMagazineReloadSound();
+                m_rifleCtrl.StopToShooting();
+
+                TPSCameraCtrl.Instance.SetCameraZoom(false);
+            }
+        }
+    }
+
+    private void SitUpdate()
+    {
+        if (Input.GetButtonDown("Sit")) 
+        {
+            bool isSit = !m_myAnim.GetBool("isSit");
+            m_myAnim.SetBool("isSit", isSit);
+
+            if (isSit)
+            {
+                m_myCollider.center = new Vector3(0f, 0.4f, 0f);
+                m_myCollider.height = 0.8f;
+            }
+            else
+            {
+                m_myCollider.center = new Vector3(0f, 0.8f, 0f);
+                m_myCollider.height = 1.6f;
+            }
+
+        }
+    }
+
+    private void MagazineReload()
+    {
+        m_rifleCtrl.MagazineReload();
+    }
+
+    private void LookAt()
+    {
+        if (!m_myAnim.GetBool("isVault"))
+            m_myTransform.eulerAngles = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z);
+    }
+
+    public void AnimatorChange(string animatorName)
+    {
+        Resources.UnloadAsset(m_myAnim.runtimeAnimatorController);
+        m_myAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("Animators/" + animatorName);
+    }
+}

@@ -31,7 +31,7 @@ namespace EasyEditor
         /// another one rendered inline, we need to access this intermediary one to save the modifications done in the 
         /// editor.
         /// </summary>
-        protected SerializedObject intermediarySerializedObject = null;
+        protected SerializedObject directParentSerializedObject = null;
 		
 		public override void InitializeFromEntityInfo(EntityInfo entityInfo)
 		{
@@ -63,7 +63,7 @@ namespace EasyEditor
         {
             serializedProperty = FieldInfoHelper.GetSerializedPropertyFromPath(entityInfo.propertyPath, 
                                                                                serializedObject, 
-                                                                               out intermediarySerializedObject);
+                                                                               out directParentSerializedObject);
 
             if (serializedProperty == null)
             {

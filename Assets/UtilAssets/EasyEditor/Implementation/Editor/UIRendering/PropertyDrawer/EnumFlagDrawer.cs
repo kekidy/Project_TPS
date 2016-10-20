@@ -35,9 +35,15 @@ namespace EasyEditor
     		if (string.IsNullOrEmpty(propName.text))
                 propName = label;
     		
-    		EditorGUI.BeginProperty(position, label, property);
-    		Enum enumNew = EditorGUI.EnumMaskField(position, propName, targetEnum);
-    		property.intValue = (int) Convert.ChangeType(enumNew, targetEnum.GetType());
+            label = EditorGUI.BeginProperty(position, label, property);
+            label.text = propName.text;
+
+            EditorGUI.BeginChangeCheck ();
+            Enum enumNew = EditorGUI.EnumMaskField(position, label, targetEnum);
+
+            if (EditorGUI.EndChangeCheck ())
+                property.intValue = (int) Convert.ChangeType(enumNew, targetEnum.GetType());
+    		
     		EditorGUI.EndProperty();
     	}
     }

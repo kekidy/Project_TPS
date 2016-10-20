@@ -26,7 +26,7 @@ namespace EasyEditor
         public void Initialize(SerializedObject serializedObject, EasyEditorBase editorScript)
         {
             this.editorScript = editorScript;
-            base.InitializeFromEntityInfo(new EntityInfo(null, serializedObject, ""));
+            base.InitializeFromEntityInfo(new EntityInfo(serializedObject.targetObject.GetType(), serializedObject, ""));
         }
 
         protected override void RetrieveGroupList()

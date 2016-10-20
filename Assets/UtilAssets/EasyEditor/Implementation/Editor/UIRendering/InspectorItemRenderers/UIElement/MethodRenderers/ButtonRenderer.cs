@@ -48,7 +48,10 @@ namespace EasyEditor
             position.width -= EditorGUI.indentLevel * 15f;
             if (GUI.Button(position, new GUIContent(label, tooltip)))
             {
-				entityInfo.methodInfo.Invoke(entityInfo.caller, null);
+                for(int i = 0; i < serializedObject.targetObjects.Length; i++)
+                {
+                    entityInfo.methodInfo.Invoke(serializedObject.targetObjects[i], null);
+                }
             }
         }
 	}

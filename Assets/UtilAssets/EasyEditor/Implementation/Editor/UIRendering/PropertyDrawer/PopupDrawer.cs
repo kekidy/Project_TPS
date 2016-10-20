@@ -16,14 +16,29 @@ namespace EasyEditor{
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            label = EditorGUI.BeginProperty(position, label, property);
+
             // Checks to see what is the type of the provided values and acts accordingly.
             if (popupAttribute.variableType == typeof(int[]))
             {
                 EditorGUI.BeginChangeCheck();
-                index = EditorGUI.Popup(position, label.text, property.intValue, popupAttribute.list);
+
+                // Checks all items in the provided list, to see if any of them is a match with the property value, if so assigns that value to the index.
+                for (int i = 0; i < popupAttribute.list.Length; i++)
+                {
+                    if (property.intValue == int.Parse(popupAttribute.list[i]))
+                    {
+                        index = i;
+                    }
+                }
+
+                GUIContent[] popupList = GetGUIContentArray(popupAttribute.list);
+
+                index = EditorGUI.Popup(position, label, index, popupList);
+
                 if (EditorGUI.EndChangeCheck())
                 {
-                    property.intValue = index;
+                    property.intValue = int.Parse(popupAttribute.list[index]);
                 }
             }
             else if (popupAttribute.variableType == typeof(float[]))
@@ -37,7 +52,10 @@ namespace EasyEditor{
                         index = i;
                     }
                 }
-                index = EditorGUI.Popup(position, label.text, index, popupAttribute.list);
+
+                GUIContent[] popupList = GetGUIContentArray(popupAttribute.list);
+
+                index = EditorGUI.Popup(position, label, index, popupList);
                 if (EditorGUI.EndChangeCheck())
                 {
                     property.floatValue = Convert.ToSingle(popupAttribute.list[index]);
@@ -54,7 +72,9 @@ namespace EasyEditor{
                         index = i;
                     }
                 }
-                index = EditorGUI.Popup(position, label.text, index, popupAttribute.list);
+
+                GUIContent[] popupList = GetGUIContentArray(popupAttribute.list);
+                index = EditorGUI.Popup(position, label, index, popupList);
                 if (EditorGUI.EndChangeCheck())
                 {
                     property.stringValue = popupAttribute.list[index];
@@ -64,6 +84,19 @@ namespace EasyEditor{
             {
                 EditorGUI.LabelField(position, "ERROR READ CONSOLE FOR MORE INFO");
             }
+
+            EditorGUI.EndProperty();
+        }
+
+        private GUIContent[] GetGUIContentArray(string[] stringArray)
+        {
+            GUIContent[] guiContentArray = new GUIContent[stringArray.Length];
+            for(int i = 0; i < guiContentArray.Length; i++)
+            {
+                guiContentArray[i] = new GUIContent(stringArray[i]);
+            }
+
+            return guiContentArray;
         }
     }
 }
