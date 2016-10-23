@@ -11,7 +11,8 @@ namespace BehaviorTree
 
         public Composite(params Node[] nodes)
         {
-            m_chileNodeList.AddRange(nodes);
+            if (nodes != null)
+                m_chileNodeList.AddRange(nodes);
         }
 
         public void AddChile(Node node)

@@ -6,11 +6,13 @@ namespace BehaviorTree
 {
     public class Root : Decorator
     {
+        public Root()
+            : base(null)
+        { }
+
         public Root(Node node)
             : base(node)
-        {
-
-        }
+        { }
 
         public override bool Run()
         {

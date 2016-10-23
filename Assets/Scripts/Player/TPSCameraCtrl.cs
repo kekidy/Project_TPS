@@ -32,10 +32,11 @@ public class TPSCameraCtrl : MonoBehaviour {
     [SerializeField] private float     m_zoomViewValue          = 30f;
     [SerializeField] private float     m_zoomCompleteSeconds    = 1f;
 
-    private Animator   m_ownerAnim   = null;
-    private Transform  m_myTransform = null;
-    private Camera     m_myCamera    = null;
-    private RaycastHit m_rayHit      = new RaycastHit();
+    private Animator   m_ownerAnim    = null;
+    private Transform  m_myTransform  = null;
+    private Camera     m_myCamera     = null;
+    private RaycastHit m_cameraCenterrayHit;
+    private RaycastHit m_targetRayHit;
 
     private float m_rotX = 0f;
     private float m_rotY = 0f;
@@ -44,7 +45,18 @@ public class TPSCameraCtrl : MonoBehaviour {
     private bool m_isZoomOn = false;
     private bool m_isRayHit = false;
 
-    public RaycastHit RayHit   { get { return m_rayHit;   } }
+    public bool ZoomOn
+    {
+        get { return m_isZoomOn; }
+        set
+        {
+            m_isZoomOn = value;
+            StopCoroutine("CameraZoom");
+            StartCoroutine("CameraZoomOn", m_isZoomOn);
+        }
+    }
+
+    public RaycastHit RayHit   { get { return m_cameraCenterrayHit;   } }
     public bool       IsRayHit { get { return m_isRayHit; } }
 
 	void Awake () {
@@ -53,81 +65,81 @@ public class TPSCameraCtrl : MonoBehaviour {
         m_myCamera        = GetComponent<Camera>();
         m_ownerAnim       = m_traceTargetTransform.GetComponent<Animator>();
         m_normalViewValue = m_myCamera.fieldOfView;
-	}
-
-	void Update () {
-        AngleCalculate();
-        CameraZoomUpdate();
-        CameraCenterRaycastUpdate();
+        m_myTransform.eulerAngles = new Vector3(0f, 0f, 0f);
     }
 
-    void LateUpdate()
-    {
-        SpringArmUpdate();
+	void Start () {
+        AngleCalculateObservable();
+        CameraZoomUpdateObservable();
+        CameraCenterRaycastObservable();
+        TraceToTargetLaterObservable();
+        SpringArmLaterObservable();
     }
 
-    private void CameraCenterRaycastUpdate()
+    private void CameraCenterRaycastObservable()
     {
-        Vector3 rayPos = m_myCamera.ScreenToWorldPoint(Vector3.zero);
-        Vector3 rayDir = m_myTransform.forward;
-        m_isRayHit = Physics.Raycast(rayPos, rayDir, out m_rayHit, Mathf.Infinity);
+        this.UpdateAsObservable()
+            .Where(_ => this.enabled)
+            .Subscribe(_ => {
+                Vector3 rayPos = m_myCamera.ScreenToWorldPoint(Vector3.zero);
+                Vector3 rayDir = m_myTransform.forward;
+                m_isRayHit = Physics.Raycast(rayPos, rayDir, out m_cameraCenterrayHit, Mathf.Infinity);
+            });
     }
 
-    private void AngleCalculate()
+    private void AngleCalculateObservable()
     {
-        if (!m_ownerAnim.GetBool("isVault"))
-        {
-            m_rotY += Input.GetAxis("Mouse X");
-            m_rotX = Mathf.Clamp(m_rotX += -Input.GetAxis("Mouse Y"), m_limitDownVerticalAngle, m_limitUpVerticalAngle);
-        }
+        this.UpdateAsObservable()
+            .Where(_ => this.enabled)
+            .Where(_ => !m_ownerAnim.GetBool("isVault"))
+            .Where(_ => Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+            .Subscribe(_ => {
+                m_rotY += Input.GetAxis("Mouse X");
+                m_rotX = Mathf.Clamp(m_rotX += -Input.GetAxis("Mouse Y"), m_limitDownVerticalAngle, m_limitUpVerticalAngle);
+                m_myTransform.eulerAngles = new Vector3(m_rotX, m_rotY, 0.0f);
 
-        m_myTransform.eulerAngles = new Vector3(m_rotX, m_rotY, 0.0f);
+                float myAngleY = m_myTransform.rotation.eulerAngles.y;
+                float targetAngleY = m_traceTargetTransform.rotation.eulerAngles.y;
+                float myRevisionAngleY = myAngleY > 180 ? myAngleY - 360f : myAngleY;
+                float targetRevisionAngleY = targetAngleY > 180 ? targetAngleY - 360f : targetAngleY;
+                float _signedAngle = myRevisionAngleY - targetRevisionAngleY;
 
-        if (m_ownerAnim.GetBool("isVault"))
-        {
-            Vector3 alivePos = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
-            alivePos.y = m_myTransform.position.y;
-            m_myTransform.position = alivePos;
-        }
-        else
-            m_myTransform.position = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
-
-        float myAngleY     = m_myTransform.rotation.eulerAngles.y;
-        float targetAngleY = m_traceTargetTransform.rotation.eulerAngles.y;
-        float myRevisionAngleY     = myAngleY > 180 ? myAngleY - 360f : myAngleY;
-        float targetRevisionAngleY = targetAngleY > 180 ? targetAngleY - 360f : targetAngleY;
-        float _signedAngle = myRevisionAngleY - targetRevisionAngleY;
-
-        //Vector3 forwardA = transform.rotation * Vector3.forward;
-        //Vector3 forwardB = target.rotation * Vector3.forward;
-
-        //float angleA = Mathf.Atan2(forwardA.x, forwardA.z) * Mathf.Rad2Deg;
-        //float angleB = Mathf.Atan2(forwardB.x, forwardB.z) * Mathf.Rad2Deg;
-
-        //float _signedAngle = Mathf.DeltaAngle(angleA, angleB);
-
-        m_ownerAnim.SetFloat("horAngle", _signedAngle);
-        m_ownerAnim.SetFloat("verAngle", m_rotX);
+                m_ownerAnim.SetFloat("horAngle", _signedAngle);
+                m_ownerAnim.SetFloat("verAngle", m_rotX);
+            });
     }
 
-    private void CameraZoomUpdate()
+    private void TraceToTargetLaterObservable()
     {
-        if (Input.GetButtonDown("Zoom"))
-            SetCameraZoom(!m_isZoomOn);
+        this.LateUpdateAsObservable()
+            .Where(_ => this.enabled)
+            .Select(_ => m_ownerAnim.GetBool("isVault"))
+            .Subscribe(isVault => {
+                if (isVault)
+                {
+                    Vector3 alivePos = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
+                    alivePos.y = m_myTransform.position.y;
+                    m_myTransform.position = alivePos;
+                }
+                else
+                    m_myTransform.position = m_traceTargetTransform.position + m_myTransform.rotation * m_distanceOffset;
+            });
     }
 
-    public void SetCameraZoom(bool isZoomOn)
+    private void CameraZoomUpdateObservable()
     {
-        m_isZoomOn = isZoomOn;
-        StopCoroutine("CameraZoom");
-        StartCoroutine("CameraZoomOn", m_isZoomOn);
+        this.UpdateAsObservable()
+            .Where(_ => this.enabled)
+            .Where(_ => Input.GetButtonDown("Zoom"))
+            .Subscribe (_ => ZoomOn = !m_isZoomOn);
     }
 
-    private void SpringArmUpdate()
+    private void SpringArmLaterObservable()
     {
-        RaycastHit hit;
-        if (Physics.Linecast(m_targetHeadTransform.position, m_myTransform.position, out hit))
-            m_myTransform.position = hit.point + (hit.normal * 0.04f);
+        this.LateUpdateAsObservable()
+            .Where(_ => this.enabled)
+            .Where(_ => Physics.Linecast(m_targetHeadTransform.position, m_myTransform.position, out m_targetRayHit))
+            .Subscribe(_ => m_myTransform.position = m_targetRayHit.point + (m_targetRayHit.normal * 0.04f));
     }
 
     private IEnumerator CameraZoomOn(bool isZoomOn)

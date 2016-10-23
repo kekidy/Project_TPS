@@ -4,18 +4,19 @@ namespace BehaviorTree
 {
     public class Sequence : Composite
     {
+        public Sequence()
+            : base(null)
+        { }
+
         public Sequence(params Node[] nodes)
             : base(nodes)
-        {
-
-        }
+        { }
 
         public override bool Run()
         {
-            List<Node> nodeList = ChileNodeList;
-            for (int i = 0; i < nodeList.Count; i++)
+            for (int i = 0; i < ChileNodeList.Count; i++)
             {
-                if (nodeList[i].Run())
+                if (!ChileNodeList[i].Run())
                     return false;
             }
             return true;

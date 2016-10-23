@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UniRx;
+using UniRx.Triggers;
 using System.Threading;
 
 [RequireComponent(typeof(MeshFilter))]
@@ -11,6 +13,7 @@ public class WayNavigationSystem : MonoBehaviour {
     [SerializeField] private Transform m_wayTargetTransform = null;
 
     private MeshRenderer  m_meshRenderer = null;
+    private Material      m_meshMaterial = null;
 
     private int           m_currentTargetPoint  = 0;
     private List<Vector3> m_wayPointList        = new List<Vector3>();
@@ -61,6 +64,7 @@ public class WayNavigationSystem : MonoBehaviour {
             Instance       = this;
             m_meshRenderer = GetComponent<MeshRenderer>();
             m_meshRenderer.enabled = false;
+            m_meshMaterial = m_meshRenderer.material;
             m_mesh = new Mesh();
             GetComponent<MeshFilter>().mesh = m_mesh;
 
@@ -73,18 +77,24 @@ public class WayNavigationSystem : MonoBehaviour {
     void Start()
     {
         NextWayPointRoad();
+
+        this.UpdateAsObservable()
+            .Where(_ => this.enabled)
+            .Where(_ => Input.GetKeyDown(KeyCode.T))
+            .Subscribe(_ => ShowWayNavigation = !ShowWayNavigation);
+
+        this.UpdateAsObservable()
+            .Where(_ => this.enabled)
+            .Where(_ => m_meshRenderer.enabled)
+            .Subscribe(_ => {
+                m_uvOffset += (Vector2.up * Time.smoothDeltaTime);
+                m_meshMaterial.SetTextureOffset("_MainTex", -m_uvOffset);
+            });
     }
 
-    void Update()
+    void OnDisable()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-            ShowWayNavigation = !ShowWayNavigation;
-
-        if (m_meshRenderer.enabled)
-        {
-            m_uvOffset += (Vector2.up * Time.smoothDeltaTime);
-            GetComponent<MeshRenderer>().material.SetTextureOffset("_MainTex", -m_uvOffset);
-        }
+        ShowWayNavigation = false;
     }
 
     public void NextWayPointRoad()

@@ -8,7 +8,6 @@ public class ScrollMinimapCtrl : MonoBehaviour {
     public static ScrollMinimapCtrl Instance { get; private set; }
 
     [SerializeField] private Transform     m_playerTransform         = null;
-    [SerializeField] private RectTransform m_angleScrollerRectTansform       = null;
     [SerializeField] private RectTransform m_targetIconRectTransform = null;
     [SerializeField] private float m_angleMultiplicatinValue = 0f;
 
@@ -36,7 +35,7 @@ public class ScrollMinimapCtrl : MonoBehaviour {
 
     private void MinimapScrollObserve()
     {
-        this.UpdateAsObservable()
+        this.ObserveEveryValueChanged(_ => m_playerTransform.position)
             .Subscribe(_ => {
                 float angle = Vector3.Angle(m_playerTransform.forward, m_targetPoint - m_playerTransform.position);
                 Vector3 cross = Vector3.Cross(m_playerTransform.forward, m_targetPoint - m_playerTransform.position);
@@ -44,12 +43,5 @@ public class ScrollMinimapCtrl : MonoBehaviour {
 
                 m_targetIconRectTransform.localPosition = new Vector3(rivisionAngle * m_angleMultiplicatinValue, 0f, 0f);
             });
-    }
-
-    private Vector3 AngleToLocalPosition(float angle, bool isFlip = false, float posY = 0f)
-    {
-        float rivisionAngle = angle > 180f ? (angle - 360f) : angle;
-        int flip = isFlip ? -1 : 1;
-        return new Vector3(rivisionAngle * flip * m_angleMultiplicatinValue, posY, 0f);
     }
 }

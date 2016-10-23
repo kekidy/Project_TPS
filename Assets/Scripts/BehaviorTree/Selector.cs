@@ -4,18 +4,19 @@ namespace BehaviorTree
 {
     public class Selector : Composite
     {
+        public Selector()
+            : base(null)
+        { }
+
         public Selector(params Node[] nodes)
             : base(nodes)
-        {
-
-        }
+        { }
 
         public override bool Run()
         {
-            List<Node> nodeList = ChileNodeList;
-            for (int i = 0; i < nodeList.Count; i++)
+            for (int i = 0; i < ChileNodeList.Count; i++)
             {
-                if (nodeList[i].Run())
+                if (ChileNodeList[i].Run())
                     return true;
             }
             return false;
