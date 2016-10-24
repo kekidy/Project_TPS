@@ -16,6 +16,10 @@ public class RunnerBotCtrl : MonoBehaviour {
 	void Awake () {
         m_myAnim = GetComponent<Animator>();
 	}
+
+    void Start()
+    {
+    }
 	
     void OnAnimatorIK(int layer)
     {

@@ -31,6 +31,10 @@ public class AIController : MonoBehaviour {
             .Subscribe(_ => root.Run());
     }
 
+    void Start()
+    { }
+
+
     private bool IsPlayerDetect()
     {
         return m_runnerBotCtrl.IsPlayerDetect;

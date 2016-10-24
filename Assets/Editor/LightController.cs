@@ -24,6 +24,9 @@ public class LightController : EditorWindow {
 
         if (GUILayout.Button("Bake Light Off"))
             BakeLightOff();
+
+        if (GUILayout.Button("Scale In Lightmap Change"))
+            ScaleInLightMapChange();
     }
 
     public void LightUpdate()
@@ -47,6 +50,19 @@ public class LightController : EditorWindow {
         {
             if (light.isBaked)
                 light.gameObject.SetActive(true);
+        }
+    }
+
+    public void ScaleInLightMapChange()
+    {
+        var renderers = FindObjectsOfType<Renderer>();
+
+        foreach(var renderer in renderers)
+        {
+            var serializeObject = new SerializedObject(renderer);
+            serializeObject.FindProperty("m_ScaleInLightmap").floatValue = 0.5f;
+            serializeObject.ApplyModifiedProperties();
+            Debug.Log(renderer.gameObject.name + "::ScaleInLightmap : " + serializeObject.FindProperty("m_ScaleInLightmap").floatValue);
         }
     }
 }
