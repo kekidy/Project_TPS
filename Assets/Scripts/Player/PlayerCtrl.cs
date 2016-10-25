@@ -7,22 +7,36 @@ using UniRx.Triggers;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 public class PlayerCtrl : MonoBehaviour {
+    [System.Serializable]
+    private class WeaponInfo
+    {
+        public KeyCode    weaponActivateKeyCode;
+        public WeaponType weaponType;
+        public GameObject weaponObj;
+    }
+
     [Inspector(group = "Player Status")]
-    [SerializeField] private float m_hp;
+    [SerializeField] private float m_hp = 0f;
 
     [Inspector(group = "Weapon")]
-    [SerializeField] private RifleCtrl m_rifleCtrl;
+    [SerializeField] private WeaponInfo[] m_weaponInfoArray     = null;
+    [SerializeField] private WeaponType   m_currentWeaponType = WeaponType.NON;
+    [SerializeField] private RifleCtrl    m_rifleCtrl         = null;
 
     [Inspector(group = "IK Target")]
-    [SerializeField] private Transform leftHandTarget;
+    [SerializeField] private Transform leftHandTarget = null;
 
-	private Transform m_myTransform;
-    private Animator  m_myAnim;
-    private Transform m_cameraTransform;
-    private CapsuleCollider m_myCollider;
-    private Vector3 m_currentDirection = Vector3.zero;
-
+	private Transform m_myTransform = null;
+    private Animator  m_myAnim      = null;
+    private Transform m_cameraTransform  = null;
+    private Vector3   m_currentDirection = Vector3.zero;
+    private CapsuleCollider m_myCollider = null;
+    
     private float m_ikLeftHandWeight = 1f;
+
+    private IObservable<WeaponInfo> m_weaponInfoObservable = null;
+    private WeaponInfo m_currentWeaponInfo = null;
+    private WeaponInfo m_nextWeaponInfo   = null;
 
     public float Speed          { get { return m_myAnim.speed; } set { m_myAnim.speed = value; } }
     public float AttackMultiple { get; set; }
@@ -33,6 +47,11 @@ public class PlayerCtrl : MonoBehaviour {
         m_cameraTransform = Camera.main.transform;
         m_myCollider   = GetComponent<CapsuleCollider>();
         AttackMultiple = 1.0f;
+        m_weaponInfoObservable = m_weaponInfoArray.ToObservable();
+
+        m_currentWeaponInfo = m_weaponInfoArray[(int)m_currentWeaponType];
+        m_currentWeaponInfo.weaponObj.SetActive(true);
+        m_myAnim.SetFloat("weaponNum", (int)m_currentWeaponInfo.weaponType);
 	}
 
     void Start()
@@ -41,21 +60,30 @@ public class PlayerCtrl : MonoBehaviour {
         AttackObservable();
         SprintObservable();
         ReloadObservable();
-        SitUObservable();
+        SitObservable();
+        WeaponChangeObservable();
 
         LookAtLaterObservable();
     }
 
     void OnAnimatorIK(int layer)
     {
-        if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isVault"))
+        if (m_currentWeaponType != WeaponType.PISTOL)
         {
-            m_ikLeftHandWeight = Mathf.MoveTowards(m_ikLeftHandWeight, 1f, Time.smoothDeltaTime * 2f);
-            m_myAnim.SetIKPositionWeight(AvatarIKGoal.LeftHand, m_ikLeftHandWeight);
-            m_myAnim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
+            if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isVault") && !m_myAnim.GetBool("isWeaponChanging"))
+            {
+                m_ikLeftHandWeight = Mathf.MoveTowards(m_ikLeftHandWeight, 1f, Time.smoothDeltaTime * 2f);
+                m_myAnim.SetIKPositionWeight(AvatarIKGoal.LeftHand, m_ikLeftHandWeight);
+                m_myAnim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
+            }
+            else
+                m_ikLeftHandWeight = 0f;
         }
-        else
-            m_ikLeftHandWeight = 0f;
+    }
+
+    void OnEnable()
+    {
+        m_myAnim.SetFloat("weaponNum", (int)m_currentWeaponInfo.weaponType);
     }
 
     void OnDisable()
@@ -102,7 +130,7 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
-            .Select(_ => new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f))
+            .Select(_ => new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical")))
             .DistinctUntilChanged()
             .Subscribe(direction => {
                 float magnitude = direction.magnitude;
@@ -111,7 +139,7 @@ public class PlayerCtrl : MonoBehaviour {
                 else
                     m_myAnim.SetFloat("moveStopAngle", m_myAnim.GetFloat("moveStartAngle"));
 
-                m_myAnim.SetFloat("vertical", direction.y);
+                m_myAnim.SetFloat("vertical", direction.z);
                 m_myAnim.SetFloat("horizontal", direction.x);
                 m_myAnim.SetFloat("inputMagnitude", magnitude);
             });
@@ -141,6 +169,7 @@ public class PlayerCtrl : MonoBehaviour {
             .Subscribe(_ => {
                 m_myAnim.SetBool("isReload", true);
                 m_myAnim.SetBool("isSprint", false);
+                m_myAnim.SetBool("isShot", false);
 
                 m_rifleCtrl.PlayMagazineReloadSound();
                 m_rifleCtrl.StopToShooting();
@@ -149,7 +178,7 @@ public class PlayerCtrl : MonoBehaviour {
             });
     }
 
-    private void SitUObservable()
+    private void SitObservable()
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
@@ -171,7 +200,32 @@ public class PlayerCtrl : MonoBehaviour {
             });
     }
 
-    private void MagazineReload()
+    private void WeaponChangeObservable()
+    {
+        this.UpdateAsObservable()
+            .SelectMany(_ => m_weaponInfoObservable.Where(weaponInfo => Input.GetKeyDown(weaponInfo.weaponActivateKeyCode)))
+            .Subscribe(weaponInfo => {
+                Debug.Log("Test");
+                m_nextWeaponInfo = weaponInfo;
+                m_myAnim.SetBool("isWeaponChanging", true);
+            });
+    }
+
+    private void CurrentWeaponActive(int isActive)
+    {
+        if (isActive == 1)
+            m_currentWeaponInfo.weaponObj.SetActive(true);
+        else
+            m_currentWeaponInfo.weaponObj.SetActive(false);
+    }
+
+    public void WeaponChange()
+    {
+        m_currentWeaponInfo = m_nextWeaponInfo;
+        m_myAnim.SetFloat("weaponNum", (int)m_currentWeaponInfo.weaponType);
+    }
+
+    public void MagazineReload()
     {
         m_rifleCtrl.MagazineReload();
     }

@@ -1,0 +1,1 @@
+﻿public enum WeaponType { NON = -1, PISTOL = 0, RIFLE }

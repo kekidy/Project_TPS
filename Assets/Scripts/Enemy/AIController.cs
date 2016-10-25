@@ -21,6 +21,7 @@ public class AIController : MonoBehaviour {
         Sequence sequence1 = new Sequence();
 
         root.SetChild = select1;
+            select1.AddChile(new Action(IsDead));
             select1.AddChile(inverter1);
                 inverter1.SetChild = new Action(IsPlayerDetect);
             select1.AddChile(sequence1);
@@ -31,9 +32,23 @@ public class AIController : MonoBehaviour {
             .Subscribe(_ => root.Run());
     }
 
-    void Start()
-    { }
+    private bool IsDead()
+    {
+        if (m_runnerBotCtrl.IsDead)
+        {
+            m_runnerBotCtrl.Anim.SetBool("isDead", true);
 
+            Destroy(this);
+            Destroy(GetComponent<Rigidbody>());
+            Destroy(GetComponent<CapsuleCollider>());
+            Destroy(GetComponent<ObservableUpdateTrigger>());
+            Destroy(GetComponent<RunnerBotCtrl>());
+            
+            return true;
+        }
+        else
+            return false;
+    }
 
     private bool IsPlayerDetect()
     {

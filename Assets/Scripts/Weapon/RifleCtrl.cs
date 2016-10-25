@@ -83,6 +83,12 @@ public class RifleCtrl : MonoBehaviour {
                 RaycastHit rayHit = TPSCameraCtrl.Instance.RayHit;
                 GameObject impact = Instantiate(m_bulletImpactPrefab, rayHit.point, Quaternion.LookRotation(rayHit.normal)) as GameObject;
                 Destroy(impact, 1.5f);
+
+                if (rayHit.collider.tag == "Enemy")
+                {
+                    RunnerBotCtrl runnerBotCtrl = rayHit.collider.GetComponent<RunnerBotCtrl>();
+                    runnerBotCtrl.BeAttacked(m_damage);
+                }
             }
 
             if (CurrentMagazinNum == 0)
