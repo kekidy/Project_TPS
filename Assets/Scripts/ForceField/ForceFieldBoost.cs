@@ -12,7 +12,7 @@ public class ForceFieldBoost : ForceFieldGauge {
         base.OnSkillActivate(playerCtrl);
         playerCtrl.Speed = m_speedMutiple;
 
-        UseSkillGauge(true);
+        UseSkillGauge(playerCtrl, true);
     }
 
     public override void OnSkillDeactivate(PlayerCtrl playerCtrl)
@@ -20,6 +20,6 @@ public class ForceFieldBoost : ForceFieldGauge {
         base.OnSkillDeactivate(playerCtrl);
         playerCtrl.Speed = 1f;
 
-        UseSkillGauge(false);
+        UseSkillGauge(playerCtrl, false);
     }
 }

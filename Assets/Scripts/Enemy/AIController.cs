@@ -58,13 +58,11 @@ public class AIController : MonoBehaviour {
     private bool LookAtTarget()
     {
         m_runnerBotCtrl.transform.LookAt(m_playerCtrl.transform);
-        Debug.Log("Look At");
         return true;
     }
 
     private bool AttackToTarget()
     {
-        Debug.Log("Attack To Target");
         return true;
     }
 }

@@ -10,13 +10,13 @@ public class ForceFieldPowerUp : ForceFieldGauge {
     {
         base.OnSkillActivate(playerCtrl);
 
-        UseSkillGauge(true);
+        UseSkillGauge(playerCtrl, true);
     }
 
     public override void OnSkillDeactivate(PlayerCtrl playerCtrl)
     {
         base.OnSkillDeactivate(playerCtrl);
 
-        UseSkillGauge(false);
+        UseSkillGauge(playerCtrl, false);
     }
 }

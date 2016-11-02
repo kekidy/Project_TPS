@@ -41,10 +41,12 @@ public class ForceFieldSystem : MonoBehaviour {
 
     void Awake()
     {
-        m_audio        = GetComponent<AudioSource>();
+        m_audio = GetComponent<AudioSource>();
+        m_currentSkill = m_skillDataArray[0].forceFieldSkill;
 
         m_skillDataObservable = m_skillDataArray.ToObservable();
         this.UpdateAsObservable()
+            .Where(_ => this.enabled)
             .SelectMany(_ => m_skillDataObservable.Where(skill => Input.GetKeyDown(skill.acitveKeyCode)))
             .Subscribe(skill => {
                 if (!skill.forceFieldSkill.IsActivated)
@@ -70,6 +72,7 @@ public class ForceFieldSystem : MonoBehaviour {
         m_currentSkill = m_skillDataArray[0].forceFieldSkill;
 
         this.ObserveEveryValueChanged(_ => m_currentSkill.IsActivated)
+            .Where(_ => this.enabled)
             .Where(isActivated => !isActivated)
             .Subscribe(_ => {
                 m_currentSkill.OnSkillDeactivate(m_playerCtrl);
@@ -77,6 +80,15 @@ public class ForceFieldSystem : MonoBehaviour {
              });
     }
 
+
+    void OnDisable()
+    {
+        if (m_currentSkill != null)
+        {
+            m_currentSkill.OnSkillDeactivate(m_playerCtrl);
+            SetShaderObjActive(false);
+        }
+    }
     private void SetShaderObjActive(bool isActive)
     {
         for (int i = 0; i < m_shaderObjArray.Length; i++)

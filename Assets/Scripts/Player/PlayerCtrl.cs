@@ -16,7 +16,9 @@ public class PlayerCtrl : MonoBehaviour {
     }
 
     [Inspector(group = "Player Status")]
-    [SerializeField] private float m_hp = 0f;
+    [SerializeField] private float m_maxHp = 0f;
+    [SerializeField] private float m_maxShieldGauge = 0f;
+    [SerializeField] private float m_maxSkillGauge  = 0f;
 
     [Inspector(group = "Weapon")]
     [SerializeField] private WeaponInfo[] m_weaponInfoArray     = null;
@@ -41,12 +43,23 @@ public class PlayerCtrl : MonoBehaviour {
     public float Speed          { get { return m_myAnim.speed; } set { m_myAnim.speed = value; } }
     public float AttackMultiple { get; set; }
 
+    public float MaxHp          { get { return m_maxHp;          } }
+    public float MaxShieldGauge { get { return m_maxShieldGauge; } }
+    public float MaxSkillGauge  { get { return m_maxSkillGauge;  } }
+
+    public float CurrentHp          { get; set; }
+    public float CurrentShieldGauge { get; set; }
+    public float CurrentSkillGauge  { get; set; } 
+
 	void Awake () {
-        m_myTransform = transform;
-        m_myAnim      = GetComponent<Animator>();
-        m_cameraTransform = Camera.main.transform;
-        m_myCollider   = GetComponent<CapsuleCollider>();
-        AttackMultiple = 1.0f;
+        m_myTransform      = transform;
+        m_myAnim           = GetComponent<Animator>();
+        m_cameraTransform  = Camera.main.transform;
+        m_myCollider       = GetComponent<CapsuleCollider>();
+        AttackMultiple     = 1.0f;
+        CurrentHp          = m_maxHp;
+        CurrentShieldGauge = m_maxShieldGauge;
+        CurrentSkillGauge  = m_maxSkillGauge;
         m_weaponInfoObservable = m_weaponInfoArray.ToObservable();
 
         m_currentWeaponInfo = m_weaponInfoArray[(int)m_currentWeaponType];
@@ -204,8 +217,8 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .SelectMany(_ => m_weaponInfoObservable.Where(weaponInfo => Input.GetKeyDown(weaponInfo.weaponActivateKeyCode)))
+            .Where(weapon => weapon != m_currentWeaponInfo)
             .Subscribe(weaponInfo => {
-                Debug.Log("Test");
                 m_nextWeaponInfo = weaponInfo;
                 m_myAnim.SetBool("isWeaponChanging", true);
             });

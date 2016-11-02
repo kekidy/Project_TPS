@@ -16,16 +16,12 @@ public abstract class ForceFieldSkill : MonoBehaviour {
 
     public virtual void OnSkillActivate(PlayerCtrl playerCtrl)
     {
-        Debug.Assert(playerCtrl != null, (GetType().Name + "::OnSkillActivate - player is null"));
-
         m_iconImage.enabled = true;
         IsActivated = true;
     }
 
     public virtual void OnSkillDeactivate(PlayerCtrl playerCtrl)
     {
-        Debug.Assert(playerCtrl != null, (GetType().Name + "::OnSkillActivate - player is null"));
-
         m_iconImage.enabled = false;
         IsActivated = false;
     }
