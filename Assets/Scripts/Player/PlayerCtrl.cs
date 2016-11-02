@@ -11,8 +11,7 @@ public class PlayerCtrl : MonoBehaviour {
     private class WeaponInfo
     {
         public KeyCode    weaponActivateKeyCode;
-        public WeaponType weaponType;
-        public GameObject weaponObj;
+        public GunBase    gunBase;
     }
 
     [Inspector(group = "Player Status")]
@@ -21,9 +20,8 @@ public class PlayerCtrl : MonoBehaviour {
     [SerializeField] private float m_maxSkillGauge  = 0f;
 
     [Inspector(group = "Weapon")]
-    [SerializeField] private WeaponInfo[] m_weaponInfoArray     = null;
-    [SerializeField] private WeaponType   m_currentWeaponType = WeaponType.NON;
-    [SerializeField] private RifleCtrl    m_rifleCtrl         = null;
+    [SerializeField] private WeaponInfo[] m_weaponInfoArray  = null;
+    [SerializeField] private int          m_startWeaponIndex = 0;
 
     [Inspector(group = "IK Target")]
     [SerializeField] private Transform leftHandTarget = null;
@@ -34,11 +32,12 @@ public class PlayerCtrl : MonoBehaviour {
     private Vector3   m_currentDirection = Vector3.zero;
     private CapsuleCollider m_myCollider = null;
     
-    private float m_ikLeftHandWeight = 1f;
-
     private IObservable<WeaponInfo> m_weaponInfoObservable = null;
     private WeaponInfo m_currentWeaponInfo = null;
-    private WeaponInfo m_nextWeaponInfo   = null;
+    private WeaponInfo m_nextWeaponInfo    = null;
+    private GunBase    m_currentGunBase    = null;
+
+    private float m_ikLeftHandWeight = 1f;
 
     public float Speed          { get { return m_myAnim.speed; } set { m_myAnim.speed = value; } }
     public float AttackMultiple { get; set; }
@@ -62,13 +61,16 @@ public class PlayerCtrl : MonoBehaviour {
         CurrentSkillGauge  = m_maxSkillGauge;
         m_weaponInfoObservable = m_weaponInfoArray.ToObservable();
 
-        m_currentWeaponInfo = m_weaponInfoArray[(int)m_currentWeaponType];
-        m_currentWeaponInfo.weaponObj.SetActive(true);
-        m_myAnim.SetFloat("weaponNum", (int)m_currentWeaponInfo.weaponType);
+        m_currentWeaponInfo = m_weaponInfoArray[m_startWeaponIndex];
+        m_currentGunBase    = m_currentWeaponInfo.gunBase;
+
+        m_myAnim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
 	}
 
     void Start()
     {
+        m_currentGunBase.gameObject.SetActive(true);
+
         MoveObservable();
         AttackObservable();
         SprintObservable();
@@ -81,7 +83,7 @@ public class PlayerCtrl : MonoBehaviour {
 
     void OnAnimatorIK(int layer)
     {
-        if (m_currentWeaponType != WeaponType.PISTOL)
+        if (m_currentGunBase.WeaponType != WeaponType.PISTOL)
         {
             if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isVault") && !m_myAnim.GetBool("isWeaponChanging"))
             {
@@ -96,12 +98,12 @@ public class PlayerCtrl : MonoBehaviour {
 
     void OnEnable()
     {
-        m_myAnim.SetFloat("weaponNum", (int)m_currentWeaponInfo.weaponType);
+        m_myAnim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
     }
 
     void OnDisable()
     {
-        m_rifleCtrl.StopToShooting();
+        m_currentGunBase.StopToShooting();
         WayNavigationSystem.Instance.ShowWayNavigation = false;
     }
 
@@ -118,7 +120,7 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
-            .Where(_ => !m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isSprint"))
+            .Where(_ => !m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isSprint") && !m_myAnim.GetBool("isWeaponChanging"))
             .Subscribe(_ => {
                 if (Input.GetButton("Shot"))
                     StartToAttack();
@@ -130,13 +132,13 @@ public class PlayerCtrl : MonoBehaviour {
     private void StartToAttack()
     {
         m_myAnim.SetBool("isShot", true);
-        m_rifleCtrl.StartToShooting();
+        m_currentGunBase.StartToShooting();
     }
 
     private void StopToAttack()
     {
         m_myAnim.SetBool("isShot", false);
-        m_rifleCtrl.StopToShooting();
+        m_currentGunBase.StopToShooting();
     }
 
     private void MoveObservable()
@@ -166,7 +168,7 @@ public class PlayerCtrl : MonoBehaviour {
                 if (Input.GetButton("Sprint"))
                 {
                     m_myAnim.SetBool("isSprint", true);
-                    m_rifleCtrl.StopToShooting();
+                    m_currentGunBase.StopToShooting();
                 }
                 else
                     m_myAnim.SetBool("isSprint", false);
@@ -177,15 +179,15 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
-            .Where(_ => !m_myAnim.GetBool("isReload") && (m_rifleCtrl.CurrentMagazinNum != m_rifleCtrl.MaxMagazineNum))
-            .Where(_ => Input.GetButtonDown("Reload") || (m_rifleCtrl.CurrentMagazinNum == 0))
+            .Where(_ => !m_myAnim.GetBool("isReload") && (m_currentGunBase.CurrentMagazinNum != m_currentGunBase.MaxMagazineNum))
+            .Where(_ => Input.GetButtonDown("Reload") || (m_currentGunBase.CurrentMagazinNum == 0))
             .Subscribe(_ => {
                 m_myAnim.SetBool("isReload", true);
                 m_myAnim.SetBool("isSprint", false);
                 m_myAnim.SetBool("isShot", false);
 
-                m_rifleCtrl.PlayMagazineReloadSound();
-                m_rifleCtrl.StopToShooting();
+                m_currentGunBase.PlayMagazineReloadSound();
+                m_currentGunBase.StopToShooting();
 
                 TPSCameraCtrl.Instance.ZoomOn = false;
             });
@@ -219,6 +221,7 @@ public class PlayerCtrl : MonoBehaviour {
             .SelectMany(_ => m_weaponInfoObservable.Where(weaponInfo => Input.GetKeyDown(weaponInfo.weaponActivateKeyCode)))
             .Where(weapon => weapon != m_currentWeaponInfo)
             .Subscribe(weaponInfo => {
+                m_currentGunBase.StopToShooting();
                 m_nextWeaponInfo = weaponInfo;
                 m_myAnim.SetBool("isWeaponChanging", true);
             });
@@ -227,20 +230,21 @@ public class PlayerCtrl : MonoBehaviour {
     private void CurrentWeaponActive(int isActive)
     {
         if (isActive == 1)
-            m_currentWeaponInfo.weaponObj.SetActive(true);
+            m_currentGunBase.gameObject.SetActive(true);
         else
-            m_currentWeaponInfo.weaponObj.SetActive(false);
+            m_currentGunBase.gameObject.SetActive(false);
     }
 
     public void WeaponChange()
     {
         m_currentWeaponInfo = m_nextWeaponInfo;
-        m_myAnim.SetFloat("weaponNum", (int)m_currentWeaponInfo.weaponType);
+        m_currentGunBase    = m_currentWeaponInfo.gunBase;
+        m_myAnim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
     }
 
     public void MagazineReload()
     {
-        m_rifleCtrl.MagazineReload();
+        m_currentGunBase.MagazineReload();
     }
 
     private void LookAtLaterObservable()

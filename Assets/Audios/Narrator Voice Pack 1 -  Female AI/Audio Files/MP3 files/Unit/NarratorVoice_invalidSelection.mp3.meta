@@ -1,0 +1,96 @@
+fileFormatVersion: 2
+guid: 409fcb1972bf6364abbef24fe8e69f16
+labels:
+- NarratorVoice
+- GameVoice
+- FemaleRobot
+- RobotVoice
+- AIVoice
+- SoundFX
+- SoundEffects
+- VoiceOver
+- CharacterVoice
+- Speech
+- Announcer
+- RTS
+- MOBA
+- TowerDefense
+- ProfessionalSound
+- ComputerVoice
+- ComputerSpeech
+- Voice
+- Audio
+- Narration
+- Narrator
+- Character
+- AI
+- Female
+- Robot
+- Computer
+- Sound
+- mp3
+- wav
+- countdown
+- phrases
+- verbal
+- spoken
+- enemy
+- level
+- resource
+- shield
+- system
+- unit
+- weapon
+- voicepack
+- soundpack
+- menusounds
+- UIsounds
+- GUIsounds
+- Realtimestrategy
+- multiplayer
+- battle
+- arena
+- dialogue
+- fightsounds
+- genericsounds
+- mobileaudio
+- mobilesound
+- mobilesoundeffect
+- android
+- sfx
+- SystemSound
+- SystemVoice
+- commentator
+- space
+- spaceshooter
+- artificialintelligence
+- GameSound
+- GameSoundEffects
+- GameSoundFX
+- Gamesfx
+- capturetheflag
+- controlpoint
+- AAA
+- TD
+- real-timestrategy
+- realtimestrategy
+- top
+- best
+AudioImporter:
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 1
+    sampleRateSetting: 0
+    sampleRateOverride: 0
+    compressionFormat: 1
+    quality: 0
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
