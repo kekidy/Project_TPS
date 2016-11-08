@@ -24,10 +24,11 @@ public class WayNavigationSystem : MonoBehaviour {
     private Vector2       m_uvOffset            = Vector3.zero;
     private Vector3       m_targetPos           = Vector3.zero;
 
-    private GameObject  m_currentWayPointObj  = null;
-    private ThreadStart m_vertexsThreadFunc   = null;
-    private ThreadStart m_trianglesThreadFunc = null;
-    private ThreadStart m_uvsThreadFunc       = null;
+    private GameObject  m_targetPointEffectObj = null;
+    private GameObject  m_currentWayPointObj   = null;
+    private ThreadStart m_vertexsThreadFunc    = null;
+    private ThreadStart m_trianglesThreadFunc  = null;
+    private ThreadStart m_uvsThreadFunc        = null;
     private Thread m_vertexsThread   = null;
     private Thread m_trianglesThread = null;
     private Thread m_uvsThread       = null;
@@ -43,6 +44,7 @@ public class WayNavigationSystem : MonoBehaviour {
             if (m_meshRenderer != null)
             {
                 m_meshRenderer.enabled = value;
+                m_targetPointEffectObj.SetActive(value);
 
                 if (value)
                     StartCoroutine("WayNavigationUpdate");
@@ -109,11 +111,15 @@ public class WayNavigationSystem : MonoBehaviour {
         m_currentWayPointObj.transform.SetParent(transform);
 
         Transform[] wayPointTransformArr = m_currentWayPointObj.GetComponentsInChildren<Transform>();
+
         m_wayPointsPosArr = new Vector3[wayPointTransformArr.Length];
-        for (int i = 1; i < m_wayPointsPosArr.Length; i++)
+        for (int i = 1; i < m_wayPointsPosArr.Length - 3; i++)
             m_wayPointsPosArr[i] = wayPointTransformArr[i].position;
 
-        ScrollMinimapCtrl.Instance.TargetPoint = m_wayPointsPosArr[m_wayPointsPosArr.Length - 1];
+        m_targetPointEffectObj = wayPointTransformArr[m_wayPointsPosArr.Length - 3].gameObject;
+        m_targetPointEffectObj.SetActive(false);
+
+        ScrollMinimapCtrl.Instance.TargetPoint = m_wayPointsPosArr[m_wayPointsPosArr.Length - 4];
     }
 
     private void CreateWayMeshVertexs()
@@ -124,7 +130,7 @@ public class WayNavigationSystem : MonoBehaviour {
             
             int nearbyIndex = 1;
             float minDist = (m_wayPointsPosArr[nearbyIndex] - m_targetPos).sqrMagnitude;
-            for (int i = 2; i < m_wayPointsPosArr.Length; i++)
+            for (int i = 2; i < m_wayPointsPosArr.Length - 3; i++)
             {
                 float dist = (m_wayPointsPosArr[i] - m_targetPos).sqrMagnitude;
                 if (dist < minDist)
@@ -148,7 +154,7 @@ public class WayNavigationSystem : MonoBehaviour {
             leftPosList.Add(leftPos);
             rightPosList.Add(rightPos);
 
-            for (int i = nearbyIndex; i < m_wayPointsPosArr.Length - 1; i++)
+            for (int i = nearbyIndex; i < m_wayPointsPosArr.Length - 3; i++)
             {
                 prevWayPoint = m_wayPointsPosArr[i];
                 nextWayPoint = m_wayPointsPosArr[i + 1];
@@ -158,7 +164,7 @@ public class WayNavigationSystem : MonoBehaviour {
                 leftPosList.Add(leftPos);
                 rightPosList.Add(rightPos);
 
-                if (i == (m_wayPointsPosArr.Length - 2))
+                if (i == (m_wayPointsPosArr.Length - 5))
                 {
                     Vector3 lastPos = m_wayPointsPosArr[i + 1];
                     Vector3 lastLeftPos = lastPos + new Vector3(-dir.z * 0.1f, 0f, dir.x * 0.1f);

@@ -180,7 +180,7 @@ public class PlayerCtrl : MonoBehaviour {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
             .Where(_ => !m_myAnim.GetBool("isReload") && (m_currentGunBase.CurrentMagazinNum != m_currentGunBase.MaxMagazineNum))
-            .Where(_ => Input.GetButtonDown("Reload") || (m_currentGunBase.CurrentMagazinNum == 0))
+            .Where(_ => Input.GetButtonDown("Reload") || (m_currentGunBase.CurrentMagazinNum <= 0))
             .Subscribe(_ => {
                 m_myAnim.SetBool("isReload", true);
                 m_myAnim.SetBool("isSprint", false);

@@ -11,6 +11,9 @@ public class LightFilker : MonoBehaviour {
     private Light m_myLight   = null;
     private Color m_mainColor = Color.white;
 
+    public float CoreBase  { get { return m_coreBase;  } set { m_coreBase = value;  } }
+    public float Amplitude { get { return m_amplitude; } set { m_amplitude = value; } }
+
 	void Awake () {
         m_myLight   = GetComponent<Light>();
         m_mainColor = m_myLight.color;

@@ -26,7 +26,9 @@ public class GunBase : MonoBehaviour {
     public int MaxMagazineNum    { get { return m_maxMagazineNum; } }
     public int CurrentMagazinNum { get; private set; }
 
-    private bool m_isFire = false;
+    private bool m_isFire     = false;
+    private bool m_isFireStop = false;
+
     private WaitForSeconds m_fireWaitSeconds    = null;
     private AudioSource    m_myAudio            = null;
     private Camera         m_mainCamera         = null;
@@ -49,7 +51,7 @@ public class GunBase : MonoBehaviour {
 
     public void StopToShooting()
     {
-        m_isFire = false;
+        m_isFireStop = true;
     }
 
     public void MagazineReload()
@@ -98,9 +100,11 @@ public class GunBase : MonoBehaviour {
             yield return new WaitForSeconds(m_rateOfFireSeconds);
             //yield return m_fireWaitSeconds;
 
-            if (m_isFire == false)
+            if (m_isFireStop)
             {
                 m_muzzleObj.SetActive(false);
+                m_isFireStop = false;
+                m_isFire     = false;
                 break;
             }
         }

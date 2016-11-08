@@ -19,10 +19,13 @@ public class CrosshairCtrl : MonoBehaviour {
         if (TPSCameraCtrl.Instance.IsRayHit)
         {
             RaycastHit rayHit = TPSCameraCtrl.Instance.RayHit;
-            if (rayHit.collider.tag == "Enemy")
-                m_myImage.sprite = m_takeAimSprite;
-            else
-                m_myImage.sprite = m_normalSprite;
+            if (rayHit.collider)
+            {
+                if (rayHit.collider.tag == "Enemy")
+                    m_myImage.sprite = m_takeAimSprite;
+                else
+                    m_myImage.sprite = m_normalSprite;
+            }
         }
     }
 }

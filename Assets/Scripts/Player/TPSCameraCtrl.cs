@@ -139,7 +139,7 @@ public class TPSCameraCtrl : MonoBehaviour {
         this.LateUpdateAsObservable()
             .Where(_ => this.enabled)
             .Where(_ => Physics.Linecast(m_targetHeadTransform.position, m_myTransform.position, out m_targetRayHit))
-            .Subscribe(_ => m_myTransform.position = m_targetRayHit.point + (m_targetRayHit.normal * 0.04f));
+            .Subscribe(_ => m_myTransform.position = m_targetRayHit.point + (m_targetRayHit.normal * 0.05f));
     }
 
     private IEnumerator CameraZoomOn(bool isZoomOn)
