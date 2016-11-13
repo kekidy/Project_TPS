@@ -43,6 +43,11 @@ public class GunBase : MonoBehaviour {
         gameObject.SetActive(false);
 	}
 
+    void OnEnable()
+    {
+        m_magazineText.text = CurrentMagazinNum.ToString();
+    }
+
     public void StartToShooting()
     {
         if (!m_isFire)

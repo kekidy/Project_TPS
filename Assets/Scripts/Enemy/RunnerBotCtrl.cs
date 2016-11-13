@@ -12,8 +12,11 @@ public class RunnerBotCtrl : MonoBehaviour {
     [Inspector(group = "IK Info")]
     [SerializeField] private Transform m_leftHandTarge = null;
 
-    private Animator m_myAnim           = null;   
-    private float    m_ikLeftHandWeight = 1f;
+    private Transform m_transform       = null;
+    private Animator  m_myAnim          = null;   
+    private Transform m_targetTransform = null;
+
+    private float     m_ikLeftHandWeight = 1f;
 
     public bool  IsPlayerDetect { get; private set; }
     public bool  IsDead         { get { return m_hp <= 0f; } }
@@ -21,11 +24,18 @@ public class RunnerBotCtrl : MonoBehaviour {
     public Animator Anim        { get { return m_myAnim; } }
 
 	void Awake () {
-        m_myAnim = GetComponent<Animator>();
+        m_transform = transform;
+        m_myAnim    = GetComponent<Animator>();
+        m_targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
 	}
 
-    void Start()
+    void Update()
     {
+        var dir = (m_targetTransform.position - m_transform.position).normalized;
+        var rot = Quaternion.LookRotation(dir);
+        var rotY = rot.eulerAngles.y - m_transform.rotation.eulerAngles.y;
+        Debug.Log(rotY);
+        m_myAnim.SetFloat("horAngle", rotY);
     }
 	
     void OnAnimatorIK(int layer)
