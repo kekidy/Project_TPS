@@ -34,7 +34,7 @@ public class RunnerBotCtrl : MonoBehaviour {
         var dir = (m_targetTransform.position - m_transform.position).normalized;
         var rot = Quaternion.LookRotation(dir);
         var rotY = rot.eulerAngles.y - m_transform.rotation.eulerAngles.y;
-        Debug.Log(rotY);
+
         m_myAnim.SetFloat("horAngle", rotY);
     }
 	

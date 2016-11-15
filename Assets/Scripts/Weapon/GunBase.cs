@@ -19,9 +19,6 @@ public class GunBase : MonoBehaviour {
     [SerializeField] private GunSound m_fireSound   = null;
     [SerializeField] private GunSound m_reloadSound = null;
 
-    [Inspector(group = "Test")]
-    [SerializeField] private Text m_magazineText = null;
-
     public WeaponType WeaponType { get { return m_gunType; } }
     public int MaxMagazineNum    { get { return m_maxMagazineNum; } }
     public int CurrentMagazinNum { get; private set; }
@@ -43,15 +40,18 @@ public class GunBase : MonoBehaviour {
         gameObject.SetActive(false);
 	}
 
-    void OnEnable()
+    void OnDisable()
     {
-        m_magazineText.text = CurrentMagazinNum.ToString();
+        m_isFireStop = true;
+        m_isFireStop = false;
     }
 
     public void StartToShooting()
     {
         if (!m_isFire)
+        {
             StartCoroutine("Shooting");
+        }
     }
 
     public void StopToShooting()
@@ -61,8 +61,7 @@ public class GunBase : MonoBehaviour {
 
     public void MagazineReload()
     {
-        CurrentMagazinNum   = m_maxMagazineNum;
-        m_magazineText.text = CurrentMagazinNum.ToString();
+        CurrentMagazinNum = m_maxMagazineNum;
     }
 
     public void PlayMagazineReloadSound()
@@ -77,7 +76,6 @@ public class GunBase : MonoBehaviour {
         while (true)
         {
             CurrentMagazinNum--;
-            m_magazineText.text = CurrentMagazinNum.ToString();
             m_muzzleObj.SetActive(false);
             m_muzzleObj.SetActive(true);
 
@@ -96,14 +94,7 @@ public class GunBase : MonoBehaviour {
                 }
             }
 
-            if (CurrentMagazinNum == 0)
-            {
-                m_muzzleObj.SetActive(false);
-                break;
-            }
-
-            yield return new WaitForSeconds(m_rateOfFireSeconds);
-            //yield return m_fireWaitSeconds;
+            yield return m_fireWaitSeconds;
 
             if (m_isFireStop)
             {

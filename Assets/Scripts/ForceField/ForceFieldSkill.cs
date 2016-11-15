@@ -4,25 +4,25 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 
 public abstract class ForceFieldSkill : MonoBehaviour {
-    private Image m_iconImage = null;
+    private GameObject m_iconObj = null;
 
     public bool IsActivated { get; set; }
 
     void Awake()
     {
-        m_iconImage = GetComponent<Image>();
-        m_iconImage.enabled = false;
+        m_iconObj = gameObject;
+        m_iconObj.SetActive(false);
     }
 
     public virtual void OnSkillActivate(PlayerCtrl playerCtrl)
     {
-        m_iconImage.enabled = true;
+        m_iconObj.SetActive(true);
         IsActivated = true;
     }
 
     public virtual void OnSkillDeactivate(PlayerCtrl playerCtrl)
     {
-        m_iconImage.enabled = false;
+        m_iconObj.SetActive(false);
         IsActivated = false;
     }
 }

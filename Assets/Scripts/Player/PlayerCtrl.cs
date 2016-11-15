@@ -50,6 +50,8 @@ public class PlayerCtrl : MonoBehaviour {
     public float CurrentShieldGauge { get; set; }
     public float CurrentSkillGauge  { get; set; } 
 
+    public GunBase CurrentGunBase { get { return m_currentGunBase; } }
+
 	void Awake () {
         m_myTransform      = transform;
         m_myAnim           = GetComponent<Animator>();
