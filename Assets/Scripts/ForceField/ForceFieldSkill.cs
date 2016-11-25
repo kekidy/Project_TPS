@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Events;
-using System.Collections.Generic;
+using EasyEditor;
 
 public abstract class ForceFieldSkill : MonoBehaviour {
+
+
     private GameObject m_iconObj = null;
 
     public bool IsActivated { get; set; }
