@@ -19,6 +19,8 @@ public class GunBase : MonoBehaviour {
     [SerializeField] private GunSound m_fireSound   = null;
     [SerializeField] private GunSound m_reloadSound = null;
 
+    [SerializeField] private IceBullet iceBullet;
+
     public WeaponType WeaponType { get { return m_gunType; } }
     public int MaxMagazineNum    { get { return m_maxMagazineNum; } }
     public int CurrentMagazinNum { get; private set; }
@@ -40,10 +42,13 @@ public class GunBase : MonoBehaviour {
         gameObject.SetActive(false);
 	}
 
+    void Update()
+    {
+    }
+
     void OnDisable()
     {
         m_isFireStop = true;
-        m_isFireStop = false;
     }
 
     public void StartToShooting()
@@ -91,6 +96,7 @@ public class GunBase : MonoBehaviour {
                 {
                     RunnerBotCtrl runnerBotCtrl = rayHit.collider.GetComponent<RunnerBotCtrl>();
                     runnerBotCtrl.BeAttacked(m_damage);
+                    iceBullet.OnEffect(runnerBotCtrl);
                 }
             }
 

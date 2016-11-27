@@ -15,6 +15,8 @@ public class DialogueManager : MonoBehaviour {
 
     private int m_currentMessageIndex = 0;
 
+    public bool IsPlaying { get; private set; }
+
 	void Awake () {
         if (Instance)
         {
@@ -23,9 +25,10 @@ public class DialogueManager : MonoBehaviour {
         }
         else
         {
-            Instance = this;
-            m_text   = GetComponent<Text>();
-            m_audio  = GetComponent<AudioSource>();
+            Instance  = this;
+            m_text    = GetComponent<Text>();
+            m_audio   = GetComponent<AudioSource>();
+            IsPlaying = false;
         }
     }
 	
@@ -38,6 +41,7 @@ public class DialogueManager : MonoBehaviour {
     {
         m_renderQuadObj.SetActive(true);
         m_text.enabled = true;
+        IsPlaying = true;
 
         do
         {
@@ -60,5 +64,6 @@ public class DialogueManager : MonoBehaviour {
 
         m_text.enabled = false;
         m_renderQuadObj.SetActive(false);
+        IsPlaying = false;
     }
 }

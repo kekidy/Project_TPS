@@ -1,0 +1,1 @@
+﻿public enum ElementalType { NON = -1, FIRE, ICE }

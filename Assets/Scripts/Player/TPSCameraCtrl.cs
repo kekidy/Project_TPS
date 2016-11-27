@@ -4,18 +4,10 @@ using UniRx.Triggers;
 using System.Collections;
 using EasyEditor;
 
-public struct RaycastHitInfomation
-{
-    public bool       isHit;
-    public RaycastHit rayHit;
-
-    public RaycastHitInfomation(bool _isHit, RaycastHit _rayHit = new RaycastHit())
-    {
-        isHit  = _isHit;
-        rayHit = _rayHit;
-    }
-}
-
+/**
+ * @brief TPS 시점 카메라 제어 클래스
+ * @author 박대근
+ */
 public class TPSCameraCtrl : MonoBehaviour {
     public static TPSCameraCtrl Instance { get; private set; }
 

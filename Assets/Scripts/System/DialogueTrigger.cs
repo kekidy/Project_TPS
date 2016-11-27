@@ -12,9 +12,9 @@ public class DialogueTrigger : MonoBehaviour {
         Destroy(gameObject);
     }
 
-    void OnTriggerEnter(Collider col)
+    void OnTriggerStay(Collider col)
     {
-        if (col.gameObject == m_triggerTarget)
+        if ((col.gameObject == m_triggerTarget) && !DialogueManager.Instance.IsPlaying)
         {
             Invoke("OnDialogueMessage", m_startDelaySeconds);
             GetComponent<BoxCollider>().enabled = false;

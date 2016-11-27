@@ -23,7 +23,7 @@ public class AIController : MonoBehaviour {
         root.SetChild = select1;
             select1.AddChile(new Action(IsDead));
             select1.AddChile(inverter1);
-                inverter1.SetChild = new Action(IsPlayerDetect);
+                inverter1.SetChild = new Action(() => { return m_runnerBotCtrl.IsPlayerDetect; });
             select1.AddChile(sequence1);
                 sequence1.AddChile(new Action(LookAtTarget));
                 sequence1.AddChile(new Action(AttackToTarget));
@@ -48,11 +48,6 @@ public class AIController : MonoBehaviour {
         }
         else
             return false;
-    }
-
-    private bool IsPlayerDetect()
-    {
-        return m_runnerBotCtrl.IsPlayerDetect;
     }
 
     private bool LookAtTarget()

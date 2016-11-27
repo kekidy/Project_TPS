@@ -16,10 +16,14 @@ public class RunnerBotCtrl : MonoBehaviour {
     private Animator  m_myAnim          = null;   
     private Transform m_targetTransform = null;
 
-    private float     m_ikLeftHandWeight = 1f;
+    private float m_ikLeftHandWeight = 1f; 
 
-    public bool  IsPlayerDetect { get; private set; }
-    public bool  IsDead         { get { return m_hp <= 0f; } }
+    private float[] m_elementalAccrue = new float[2];
+
+    public bool IsPlayerDetect { get; private set; }
+    public bool IsDead         { get { return m_hp <= 0f; } }
+    public bool IsOnCondition  { get; set; }
+    public float[] ElementalAccrue { get { return m_elementalAccrue; } }
 
     public Animator Anim        { get { return m_myAnim; } }
 
@@ -50,6 +54,17 @@ public class RunnerBotCtrl : MonoBehaviour {
     {
         m_hp -= damage;
         IsPlayerDetect = true;
+    }
+
+    public void IncreaseElementalAccrue(float value, ElementalType type)
+    {
+        m_elementalAccrue[(int)type] += value;
+    }
+
+    public void ResetElementalAccure()
+    {
+        for (int i = 0; i < m_elementalAccrue.Length; i++)
+            m_elementalAccrue[i] = 0f;
     }
 
     [Inspector(group = "AI Test")]
