@@ -6,29 +6,28 @@ using EasyEditor;
 
 /**
  * @brief TPS 시점 카메라 제어 클래스
- * @author 박대근
  */
 public class TPSCameraCtrl : MonoBehaviour {
     public static TPSCameraCtrl Instance { get; private set; }
 
     [Inspector(group = "Target Trace Info")]
-    [SerializeField] private Transform m_traceTargetTransform = null;
-    [SerializeField] private Vector3   m_distanceOffset       = Vector3.zero;
-    [SerializeField] private Transform m_targetHeadTransform  = null;
+    [SerializeField] private Transform m_traceTargetTransform = null;         //! [SerializeField] 카메라의 추적 대상이 되는 GameObject의 Transform (Player GameObject)
+    [SerializeField] private Vector3   m_distanceOffset       = Vector3.zero; //! [SerializeField] 추적 대상과의 거리 offset 값
+    [SerializeField] private Transform m_targetHeadTransform  = null;         //! [SerializeField] Spring Arm 생성을 위해 Linecast로 카메라와 이어질 기준 위치의 Transform 
 
     [Inspector(group = "Angle")]
-    [SerializeField] private float     m_limitUpVerticalAngle   = 0f;
-    [SerializeField] private float     m_limitDownVerticalAngle = 0f;
+    [SerializeField] private float     m_limitUpVerticalAngle   = 0f;         //! [SerializeField] 카메라 오브젝트의 Vertical 축 +-제한 각도
+    [SerializeField] private float     m_limitDownVerticalAngle = 0f;         //! [SerializeField] 카메라 오브젝트의 Horizontal 축 +-제한 각도
 
     [Inspector(group = "Zoom")]
-    [SerializeField] private float     m_zoomViewValue          = 30f;
-    [SerializeField] private float     m_zoomCompleteSeconds    = 1f;
+    [SerializeField] private float     m_zoomViewValue          = 30f;        //! [SerializeField] 카메라 줌시 시야각
+    [SerializeField] private float     m_zoomCompleteSeconds    = 1f;         //! [SerializeField] 카메라 줌 애니메이트 시간
 
-    private Animator   m_ownerAnim    = null;
-    private Transform  m_myTransform  = null;
-    private Camera     m_myCamera     = null;
-    private RaycastHit m_cameraCenterrayHit;
-    private RaycastHit m_targetRayHit;
+    private Animator   m_ownerAnim    = null; //! 카메라 추적중인 대상의 Animator
+    private Transform  m_myTransform  = null; //! 카메라 오브젝트의 transform 캐싱용 변수
+    private Camera     m_myCamera     = null; //! 카메라 오브젝트의 Camera 컴포넌트 캐싱용 변수
+    private RaycastHit m_cameraCenterrayHit;  //! 카메라의 Center에서 발사한 Ray에 부딛친 Hit 오브젝트의 정보를 저장
+    private RaycastHit m_targetRayHit;        //! Linecast로 Spring Arm에 부딛친 Hit 오브젝트의 정보를저장 
 
     private float m_rotX = 0f;
     private float m_rotY = 0f;
