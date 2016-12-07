@@ -26,8 +26,8 @@ public class PlayerCtrl : MonoBehaviour {
     [Inspector(group = "IK Target")]
     [SerializeField] private Transform leftHandTarget = null;
 
-	private Transform m_myTransform = null;
-    private Animator  m_myAnim      = null;
+	private Transform m_transform = null;
+    private Animator  m_anim      = null;
     private Transform m_cameraTransform  = null;
     private Vector3   m_currentDirection = Vector3.zero;
     private CapsuleCollider m_myCollider = null;
@@ -39,7 +39,7 @@ public class PlayerCtrl : MonoBehaviour {
 
     private float m_ikLeftHandWeight = 1f;
 
-    public float Speed          { get { return m_myAnim.speed; } set { m_myAnim.speed = value; } }
+    public float Speed          { get { return m_anim.speed; } set { m_anim.speed = value; } }
     public float AttackMultiple { get; set; }
 
     public float MaxHp          { get { return m_maxHp;          } }
@@ -53,8 +53,8 @@ public class PlayerCtrl : MonoBehaviour {
     public GunBase CurrentGunBase { get { return m_currentGunBase; } }
 
 	void Awake () {
-        m_myTransform      = transform;
-        m_myAnim           = GetComponent<Animator>();
+        m_transform        = transform;
+        m_anim           = GetComponent<Animator>();
         m_cameraTransform  = Camera.main.transform;
         m_myCollider       = GetComponent<CapsuleCollider>();
         AttackMultiple     = 1.0f;
@@ -66,7 +66,7 @@ public class PlayerCtrl : MonoBehaviour {
         m_currentWeaponInfo = m_weaponInfoArray[m_startWeaponIndex];
         m_currentGunBase    = m_currentWeaponInfo.gunBase;
 
-        m_myAnim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
+        m_anim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
 	}
 
     void Start()
@@ -87,11 +87,11 @@ public class PlayerCtrl : MonoBehaviour {
     {
         if (m_currentGunBase.WeaponType != WeaponType.PISTOL)
         {
-            if (!m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isVault") && !m_myAnim.GetBool("isWeaponChanging"))
+            if (!m_anim.GetBool("isReload") && !m_anim.GetBool("isVault") && !m_anim.GetBool("isWeaponChanging"))
             {
                 m_ikLeftHandWeight = Mathf.MoveTowards(m_ikLeftHandWeight, 1f, Time.smoothDeltaTime * 2f);
-                m_myAnim.SetIKPositionWeight(AvatarIKGoal.LeftHand, m_ikLeftHandWeight);
-                m_myAnim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
+                m_anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, m_ikLeftHandWeight);
+                m_anim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
             }
             else
                 m_ikLeftHandWeight = 0f;
@@ -100,7 +100,7 @@ public class PlayerCtrl : MonoBehaviour {
 
     void OnEnable()
     {
-        m_myAnim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
+        m_anim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
     }
 
     void OnDisable()
@@ -113,8 +113,8 @@ public class PlayerCtrl : MonoBehaviour {
     {
         if (col.tag == "Vault")
         {
-            if (!m_myAnim.GetBool("isVault") && Input.GetKeyDown(KeyCode.Space))
-                m_myAnim.SetTrigger("vaultTrigger");
+            if (!m_anim.GetBool("isVault") && Input.GetKeyDown(KeyCode.Space))
+                m_anim.SetTrigger("vaultTrigger");
         }
     }
 
@@ -122,7 +122,7 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
-            .Where(_ => !m_myAnim.GetBool("isReload") && !m_myAnim.GetBool("isSprint") && !m_myAnim.GetBool("isWeaponChanging"))
+            .Where(_ => !m_anim.GetBool("isReload") && !m_anim.GetBool("isSprint") && !m_anim.GetBool("isWeaponChanging"))
             .Subscribe(_ => {
                 if (Input.GetButton("Shot"))
                     StartToAttack();
@@ -133,13 +133,13 @@ public class PlayerCtrl : MonoBehaviour {
 
     private void StartToAttack()
     {
-        m_myAnim.SetBool("isShot", true);
+        m_anim.SetBool("isShot", true);
         m_currentGunBase.StartToShooting();
     }
 
     private void StopToAttack()
     {
-        m_myAnim.SetBool("isShot", false);
+        m_anim.SetBool("isShot", false);
         m_currentGunBase.StopToShooting();
     }
 
@@ -152,13 +152,13 @@ public class PlayerCtrl : MonoBehaviour {
             .Subscribe(direction => {
                 float magnitude = direction.magnitude;
                 if (magnitude >= 0.5f)
-                    m_myAnim.SetFloat("moveStartAngle", Quaternion.LookRotation(direction).eulerAngles.y);
+                    m_anim.SetFloat("moveStartAngle", Quaternion.LookRotation(direction).eulerAngles.y);
                 else
-                    m_myAnim.SetFloat("moveStopAngle", m_myAnim.GetFloat("moveStartAngle"));
+                    m_anim.SetFloat("moveStopAngle", m_anim.GetFloat("moveStartAngle"));
 
-                m_myAnim.SetFloat("vertical", direction.z);
-                m_myAnim.SetFloat("horizontal", direction.x);
-                m_myAnim.SetFloat("inputMagnitude", magnitude);
+                m_anim.SetFloat("vertical", direction.z);
+                m_anim.SetFloat("horizontal", direction.x);
+                m_anim.SetFloat("inputMagnitude", magnitude);
             });
     }
 
@@ -169,11 +169,11 @@ public class PlayerCtrl : MonoBehaviour {
             .Subscribe(_ => {
                 if (Input.GetButton("Sprint"))
                 {
-                    m_myAnim.SetBool("isSprint", true);
+                    m_anim.SetBool("isSprint", true);
                     m_currentGunBase.StopToShooting();
                 }
                 else
-                    m_myAnim.SetBool("isSprint", false);
+                    m_anim.SetBool("isSprint", false);
             });
     }
 
@@ -181,12 +181,12 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
-            .Where(_ => !m_myAnim.GetBool("isReload") && (m_currentGunBase.CurrentMagazinNum != m_currentGunBase.MaxMagazineNum))
+            .Where(_ => !m_anim.GetBool("isReload") && (m_currentGunBase.CurrentMagazinNum != m_currentGunBase.MaxMagazineNum))
             .Where(_ => Input.GetButtonDown("Reload") || (m_currentGunBase.CurrentMagazinNum <= 0))
             .Subscribe(_ => {
-                m_myAnim.SetBool("isReload", true);
-                m_myAnim.SetBool("isSprint", false);
-                m_myAnim.SetBool("isShot", false);
+                m_anim.SetBool("isReload", true);
+                m_anim.SetBool("isSprint", false);
+                m_anim.SetBool("isShot", false);
 
                 m_currentGunBase.PlayMagazineReloadSound();
                 m_currentGunBase.StopToShooting();
@@ -200,9 +200,9 @@ public class PlayerCtrl : MonoBehaviour {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
             .Where(_ => Input.GetButtonDown("Sit"))
-            .Select(_ => !m_myAnim.GetBool("isSit"))
+            .Select(_ => !m_anim.GetBool("isSit"))
             .Subscribe(isSit => {
-                m_myAnim.SetBool("isSit", isSit);
+                m_anim.SetBool("isSit", isSit);
 
                 if (isSit)
                 {
@@ -225,7 +225,7 @@ public class PlayerCtrl : MonoBehaviour {
             .Subscribe(weaponInfo => {
                 m_currentGunBase.StopToShooting();
                 m_nextWeaponInfo = weaponInfo;
-                m_myAnim.SetBool("isWeaponChanging", true);
+                m_anim.SetBool("isWeaponChanging", true);
             });
     }
 
@@ -241,7 +241,7 @@ public class PlayerCtrl : MonoBehaviour {
     {
         m_currentWeaponInfo = m_nextWeaponInfo;
         m_currentGunBase    = m_currentWeaponInfo.gunBase;
-        m_myAnim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
+        m_anim.SetFloat("weaponNum", (int)m_currentGunBase.WeaponType);
     }
 
     public void MagazineReload()
@@ -253,14 +253,14 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.LateUpdateAsObservable()
             .Where(_ => this.enabled)
-            .Where(_ => !m_myAnim.GetBool("isVault"))
-            .Subscribe(_ => m_myTransform.eulerAngles
-                = new Vector3(m_myTransform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_myTransform.eulerAngles.z));
+            .Where(_ => !m_anim.GetBool("isVault"))
+            .Subscribe(_ => m_transform.eulerAngles
+                = new Vector3(m_transform.eulerAngles.x, m_cameraTransform.eulerAngles.y, m_transform.eulerAngles.z));
     }
 
     public void AnimatorChange(string animatorName)
     {
-        Resources.UnloadAsset(m_myAnim.runtimeAnimatorController);
-        m_myAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("Animators/" + animatorName);
+        Resources.UnloadAsset(m_anim.runtimeAnimatorController);
+        m_anim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("Animators/" + animatorName);
     }
 }

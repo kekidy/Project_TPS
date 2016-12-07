@@ -4,14 +4,21 @@ using System.Collections;
 public abstract class ElementalBullet : MonoBehaviour {
     [SerializeField] private ElementalType m_elementalType = ElementalType.NON;
     [Range(0f, 100f)]
-    [SerializeField] private float m_chargingRatePerOneShot = 0f;
-    [SerializeField] private float m_effectSecondsDuration  = 0f;
-    
-    public float EffectSecondsDuration { get { return m_effectSecondsDuration; } }
+    [SerializeField] private float   m_chargingRatePerOneShot = 0f;
+    [SerializeField] private float   m_effectSecondsDuration  = 0f;
+    [SerializeField] private Vector3 m_effectOffset           = Vector3.zero;
+
+    private GameObject m_gameObject = null;
+
+    public float   EffectSecondsDuration { get { return m_effectSecondsDuration; } }
+    public Vector3 EffectOffset          { get { return m_effectOffset;          } }
+    public bool    IsActivated           { get { return m_gameObject.activeSelf; } set { m_gameObject.SetActive(value); } }
 
     void Awake()
     {
-        gameObject.SetActive(false);
+        m_gameObject = gameObject;
+        m_gameObject.SetActive(false);
+        IsActivated = false;
     }
 
     public void OnEffect(RunnerBotCtrl enemy)
@@ -28,6 +35,11 @@ public abstract class ElementalBullet : MonoBehaviour {
                 OnEvent(enemy);
             }
         }
+    }
+
+    public void SetActive(bool isActive)
+    {
+        m_gameObject.SetActive(isActive);
     }
 
     protected abstract void OnEvent(RunnerBotCtrl enemy);

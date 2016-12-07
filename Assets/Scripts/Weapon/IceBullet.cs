@@ -11,7 +11,7 @@ public class IceBullet : ElementalBullet {
         freeze.Init(enemy, m_freezeMaterial, EffectSecondsDuration);
 
         var obj = Instantiate(m_smokeEffectObj, enemy.transform) as GameObject;
-        obj.transform.localPosition = new Vector3(0f, 1f, 0f);
+        obj.transform.localPosition = EffectOffset;
         Destroy(obj, EffectSecondsDuration);
     }
 }

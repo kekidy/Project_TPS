@@ -30,7 +30,8 @@ public class WeaponStateUIManager : MonoBehaviour {
         this.ObserveEveryValueChanged(_ => m_playerCtrl.CurrentGunBase)
             .Subscribe(gunbase =>
             {
-                var weaponImageObj = m_weaponImageObj[(int)gunbase.WeaponType];
+                GameObject weaponImageObj = m_weaponImageObj[(int)gunbase.WeaponType];
+
                 m_currentImageObj.SetActive(false);
                 weaponImageObj.SetActive(true);
                 m_currentImageObj = weaponImageObj;

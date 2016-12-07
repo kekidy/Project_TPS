@@ -31,17 +31,17 @@ public class RunnerBotCtrl : MonoBehaviour {
         m_transform = transform;
         m_myAnim    = GetComponent<Animator>();
         m_targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
+
+        this.UpdateAsObservable()
+            .Subscribe(_ => {
+                Vector3    dir     = (m_targetTransform.position - m_transform.position).normalized;
+                Quaternion lookRot = Quaternion.LookRotation(dir);
+                float      rotY    = lookRot.eulerAngles.y - m_transform.rotation.eulerAngles.y;
+
+                m_myAnim.SetFloat("horAngle", rotY);
+            });
 	}
 
-    void Update()
-    {
-        var dir = (m_targetTransform.position - m_transform.position).normalized;
-        var rot = Quaternion.LookRotation(dir);
-        var rotY = rot.eulerAngles.y - m_transform.rotation.eulerAngles.y;
-
-        m_myAnim.SetFloat("horAngle", rotY);
-    }
-	
     void OnAnimatorIK(int layer)
     {
         m_ikLeftHandWeight = Mathf.MoveTowards(m_ikLeftHandWeight, 1f, Time.smoothDeltaTime * 2f);

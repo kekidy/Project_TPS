@@ -2,27 +2,23 @@
 using EasyEditor;
 
 public abstract class ForceFieldSkill : MonoBehaviour {
+    private GameObject m_gameObject = null;
 
-
-    private GameObject m_iconObj = null;
-
-    public bool IsActivated { get; set; }
+    public bool IsActivated { get { return m_gameObject.activeSelf; }  set { m_gameObject.SetActive(value); } }
 
     void Awake()
     {
-        m_iconObj = gameObject;
-        m_iconObj.SetActive(false);
+        m_gameObject = gameObject;
+        m_gameObject.SetActive(false);
     }
 
     public virtual void OnSkillActivate(PlayerCtrl playerCtrl)
     {
-        m_iconObj.SetActive(true);
         IsActivated = true;
     }
 
     public virtual void OnSkillDeactivate(PlayerCtrl playerCtrl)
     {
-        m_iconObj.SetActive(false);
         IsActivated = false;
     }
 }

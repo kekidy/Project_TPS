@@ -30,14 +30,14 @@ public class ForceFieldSystem : MonoBehaviour {
     [SerializeField] private GameObject[] m_shaderObjArray = null;
     [SerializeField] private Material     m_shaderMaterial = null;
     [SerializeField] private float        m_shaderVisibleFadeSeconds = 0f;
-    [SerializeField] private float        m_shaderBrightness = 0.75f;
+    [SerializeField] private float        m_shaderBrightness         = 0.75f;
 
     [Inspector(group = "Skill Data")]
     [SerializeField] private SkillData[] m_skillDataArray = null;
 
-    private AudioSource m_audio = null;
+    private AudioSource            m_audio               = null;
     private IObservable<SkillData> m_skillDataObservable = null;
-    private ForceFieldSkill m_currentSkill = null;
+    private ForceFieldSkill        m_currentSkill        = null;
 
     void Awake()
     {
