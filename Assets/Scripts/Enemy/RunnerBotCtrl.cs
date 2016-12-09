@@ -4,6 +4,7 @@ using UniRx;
 using UniRx.Triggers;
 using BehaviorTree;
 using EasyEditor;
+using UniLinq;
 
 public class RunnerBotCtrl : MonoBehaviour {
     [Inspector(group = "Runner Bot Status")]
@@ -16,16 +17,25 @@ public class RunnerBotCtrl : MonoBehaviour {
     private Animator  m_myAnim          = null;   
     private Transform m_targetTransform = null;
 
-    private float m_ikLeftHandWeight = 1f; 
+    private float   m_ikLeftHandWeight  = 1f; 
+    private float[] m_elementalAccrue   = new float[2];
+    private bool    m_isPlayerDetact    = false;
 
-    private float[] m_elementalAccrue = new float[2];
+    public bool IsPlayerDetect
+    {
+        get { return m_isPlayerDetact; }
+        set
+        {
+            m_isPlayerDetact = value;
+            m_myAnim.SetBool("isPlayerDetect", value);
+        }
+    }
 
-    public bool IsPlayerDetect { get; private set; }
-    public bool IsDead         { get { return m_hp <= 0f; } }
-    public bool IsOnCondition  { get; set; }
+    public bool IsDead             { get { return m_hp <= 0f; } }
+    public bool IsOnCondition      { get; set; }
     public float[] ElementalAccrue { get { return m_elementalAccrue; } }
 
-    public Animator Anim        { get { return m_myAnim; } }
+    public Animator Anim { get { return m_myAnim; } }
 
 	void Awake () {
         m_transform = transform;
@@ -33,6 +43,7 @@ public class RunnerBotCtrl : MonoBehaviour {
         m_targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
         this.UpdateAsObservable()
+            .Where(_ => m_isPlayerDetact)
             .Subscribe(_ => {
                 Vector3    dir     = (m_targetTransform.position - m_transform.position).normalized;
                 Quaternion lookRot = Quaternion.LookRotation(dir);
@@ -53,7 +64,18 @@ public class RunnerBotCtrl : MonoBehaviour {
     public void BeAttacked(float damage)
     {
         m_hp -= damage;
-        IsPlayerDetect = true;
+
+        if (!IsPlayerDetect)
+        {
+            IsPlayerDetect = true;
+
+            var runnerBotArray = FindObjectsOfType<RunnerBotCtrl>()
+                .Where(runnerBot => Vector3.Distance(m_transform.position, runnerBot.m_transform.position) < 10f)
+                .ToArray();
+
+            for (int i = 0; i < runnerBotArray.Length; i++)
+                runnerBotArray[i].IsPlayerDetect = true;
+        }
     }
 
     public void IncreaseElementalAccrue(float value, ElementalType type)

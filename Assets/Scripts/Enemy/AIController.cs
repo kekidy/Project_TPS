@@ -25,7 +25,6 @@ public class AIController : MonoBehaviour {
             select1.AddChile(inverter1);
                 inverter1.SetChild = new Action(() => { return m_runnerBotCtrl.IsPlayerDetect; });
             select1.AddChile(sequence1);
-                sequence1.AddChile(new Action(LookAtTarget));
                 sequence1.AddChile(new Action(AttackToTarget));
 
         this.UpdateAsObservable()
