@@ -11,6 +11,7 @@ public class RunnerBotCtrl : MonoBehaviour {
     [SerializeField] private float m_hp                = 0f;
     [SerializeField] private float m_attackDelay       = 0f;
     [SerializeField] private int   m_oneCycleAttackNum = 0;
+    [SerializeField] private Transform m_weaponBulletPoint = null;
 
     [Inspector(group = "IK Info")]
     [SerializeField] private Transform m_leftHandTarge = null;
@@ -80,6 +81,11 @@ public class RunnerBotCtrl : MonoBehaviour {
         }
     }
 
+    public void StartAttackToTarget()
+    {
+
+    }
+
     public void IncreaseElementalAccrue(float value, ElementalType type)
     {
         m_elementalAccrue[(int)type] += value;
@@ -89,6 +95,16 @@ public class RunnerBotCtrl : MonoBehaviour {
     {
         for (int i = 0; i < m_elementalAccrue.Length; i++)
             m_elementalAccrue[i] = 0f;
+    }
+
+    private IEnumerator AttackToTarget()
+    {
+        for (int i = 0; i < m_oneCycleAttackNum; i++)
+        {
+            yield return new WaitForSeconds(m_attackDelay);
+            Vector3 dir = (m_targetTransform.position - m_weaponBulletPoint.position).normalized;
+            Vector3 attackPoint = dir + new Vector3(0f, dir.)
+        }
     }
 
     [Inspector(group = "AI Test")]
