@@ -35,6 +35,7 @@ public class RunnerBotCtrl : MonoBehaviour {
     }
 
     public bool IsDead             { get { return m_hp <= 0f; } }
+    public bool IsAttacking        { get; set; }
     public bool IsOnCondition      { get; set; }
     public float[] ElementalAccrue { get { return m_elementalAccrue; } }
 
@@ -54,6 +55,8 @@ public class RunnerBotCtrl : MonoBehaviour {
 
                 m_myAnim.SetFloat("horAngle", rotY);
             });
+
+        StartCoroutine("AttackToTarget");
 	}
 
     void OnAnimatorIK(int layer)
@@ -67,6 +70,9 @@ public class RunnerBotCtrl : MonoBehaviour {
     public void BeAttacked(float damage)
     {
         m_hp -= damage;
+
+        if (Random.Range(0f, 1f) < 0.4f)
+            m_myAnim.SetBool("isHit", true);
 
         if (!IsPlayerDetect)
         {
@@ -83,7 +89,7 @@ public class RunnerBotCtrl : MonoBehaviour {
 
     public void StartAttackToTarget()
     {
-
+        StartCoroutine("AttackToTarget");
     }
 
     public void IncreaseElementalAccrue(float value, ElementalType type)
@@ -101,9 +107,23 @@ public class RunnerBotCtrl : MonoBehaviour {
     {
         for (int i = 0; i < m_oneCycleAttackNum; i++)
         {
+            while (true)
+            {
             yield return new WaitForSeconds(m_attackDelay);
             Vector3 dir = (m_targetTransform.position - m_weaponBulletPoint.position).normalized;
-            Vector3 attackPoint = dir + new Vector3(0f, dir.)
+            Vector3 finalAttackDir = dir + new Vector3(dir.z * Random.Range(-0.05f, 0.05f), 0f, dir.x * Random.Range(-0.05f, 0.05f));
+
+            Debug.DrawRay(m_weaponBulletPoint.position, finalAttackDir * 20, Color.red);
+
+            RaycastHit hit;
+            if (Physics.Raycast(m_weaponBulletPoint.position, finalAttackDir, out hit, Mathf.Infinity))
+            {
+                if (hit.transform.tag == "Player")
+                    Debug.Log("Hit");
+            }
+
+            yield return null;
+            }
         }
     }
 

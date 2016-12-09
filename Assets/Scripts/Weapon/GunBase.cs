@@ -34,7 +34,7 @@ public class GunBase : MonoBehaviour {
     private Transform      m_mainCmeraTransform = null;
 
 	void Awake () {
-        m_fireWaitSeconds = new WaitForSeconds(m_rateOfFireSeconds);
+        m_fireWaitSeconds = new WaitForSeconds(m_rateOfFireSeconds / 2f);
         CurrentMagazinNum = m_maxMagazineNum;
         m_myAudio         = GetComponent<AudioSource>();
         m_mainCamera         = Camera.main;
@@ -82,6 +82,7 @@ public class GunBase : MonoBehaviour {
         {
             CurrentMagazinNum--;
             m_muzzleObj.SetActive(false);
+            yield return m_fireWaitSeconds;
             m_muzzleObj.SetActive(true);
 
             m_fireSound.PlaySound(m_myAudio);

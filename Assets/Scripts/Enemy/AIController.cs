@@ -35,7 +35,7 @@ public class AIController : MonoBehaviour {
     {
         if (m_runnerBotCtrl.IsDead)
         {
-            m_runnerBotCtrl.Anim.SetBool("isDead", true);
+            m_runnerBotCtrl.Anim.SetTrigger("isDead");
 
             Destroy(this);
             Destroy(GetComponent<Rigidbody>());
