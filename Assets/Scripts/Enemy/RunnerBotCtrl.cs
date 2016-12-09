@@ -8,7 +8,9 @@ using UniLinq;
 
 public class RunnerBotCtrl : MonoBehaviour {
     [Inspector(group = "Runner Bot Status")]
-    [SerializeField] private float m_hp = 0f;
+    [SerializeField] private float m_hp                = 0f;
+    [SerializeField] private float m_attackDelay       = 0f;
+    [SerializeField] private int   m_oneCycleAttackNum = 0;
 
     [Inspector(group = "IK Info")]
     [SerializeField] private Transform m_leftHandTarge = null;
