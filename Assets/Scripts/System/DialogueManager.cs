@@ -53,7 +53,7 @@ public class DialogueManager : MonoBehaviour {
             if (script == string.Empty)
                 m_text.text = string.Empty;
             else
-                m_text.text = string.Format("<color=yellow>{0}</color> : {1}", name, script);
+                m_text.text = string.Format("<color=orange>{0}</color> : {1}", name, script);
 
             m_audio.clip = data.audioClip;
             m_audio.time = 0.5f;
