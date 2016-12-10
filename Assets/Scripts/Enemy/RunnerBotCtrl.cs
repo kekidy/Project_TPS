@@ -11,8 +11,10 @@ public class RunnerBotCtrl : MonoBehaviour {
     [SerializeField] private float m_hp                = 0f;
     [SerializeField] private float m_damage            = 0f;
     [SerializeField] private float m_attackDelay       = 0f;
-    [SerializeField] private int   m_oneCycleAttackNum = 0;
-    [SerializeField] private Transform m_weaponBulletPoint = null;
+    [SerializeField] private float m_oneCycleDelay     = 0f;
+    [SerializeField] private float m_oneCycleAttackNum = 0f;
+    [SerializeField] private GameObject m_muzzleFlashObj    = null;
+    [SerializeField] private Transform  m_weaponBulletPoint = null;
 
     [Inspector(group = "IK Info")]
     [SerializeField] private Transform m_leftHandTarge = null;
@@ -21,6 +23,8 @@ public class RunnerBotCtrl : MonoBehaviour {
     private Animator   m_myAnim          = null;   
     private Transform  m_targetTransform = null;
     private PlayerCtrl m_playerCtrl      = null;
+    private WaitForSeconds m_waitForAttackDelay = null;
+    private WaitForSeconds m_waitForOneCycle    = null;
 
     private float   m_ikLeftHandWeight  = 1f; 
     private float[] m_elementalAccrue   = new float[2];
@@ -48,6 +52,7 @@ public class RunnerBotCtrl : MonoBehaviour {
         m_myAnim    = GetComponent<Animator>();
         m_targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
         m_playerCtrl      = m_targetTransform.GetComponent<PlayerCtrl>();
+        m_waitForAttackDelay = new WaitForSeconds(m_attackDelay / 2);
 
         this.UpdateAsObservable()
             .Where(_ => m_isPlayerDetact)
@@ -113,7 +118,9 @@ public class RunnerBotCtrl : MonoBehaviour {
 
         for (int i = 0; i < m_oneCycleAttackNum; i++)
         {
-            yield return new WaitForSeconds(m_attackDelay);
+            yield return m_waitForAttackDelay;
+            m_muzzleFlashObj.SetActive(false);
+            m_muzzleFlashObj.SetActive(true);
             Vector3 dir = (m_targetTransform.position - m_weaponBulletPoint.position).normalized;
             Vector3 finalAttackDir = dir + new Vector3(dir.z * Random.Range(-0.05f, 0.05f), 0f, dir.x * Random.Range(-0.05f, 0.05f));
 
@@ -127,6 +134,7 @@ public class RunnerBotCtrl : MonoBehaviour {
             }
         }
 
+        yield return m_waitForOneCycle;
         IsAttacking = false;
     }
 
