@@ -16,7 +16,7 @@ public class CinemaCurveControl : CinemaCurveClipItemControl
         base.SnapScrubber += CinemaCurveControl_SnapScrubber;
         base.CurvesChanged += CinemaCurveControl_CurvesChanged;
 
-        actionIcon = Resources.Load<Texture>("Director_CurvesIcon");
+        actionIcon = EditorGUIUtility.Load("Cinema Suite/Cinema Director/Director_CurvesIcon.png") as Texture;
     }
 
     protected virtual void CinemaCurveControl_CurvesChanged(object sender, CurveClipWrapperEventArgs e)

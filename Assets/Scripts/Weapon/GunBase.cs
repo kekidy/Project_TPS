@@ -81,8 +81,7 @@ public class GunBase : MonoBehaviour {
         while (true)
         {
             CurrentMagazinNum--;
-            m_muzzleObj.SetActive(false);
-            yield return m_fireWaitSeconds;
+            
             m_muzzleObj.SetActive(true);
 
             m_fireSound.PlaySound(m_myAudio);
@@ -90,6 +89,8 @@ public class GunBase : MonoBehaviour {
             if (TPSCameraCtrl.Instance.IsRayHit)
             {
                 RaycastHit rayHit = TPSCameraCtrl.Instance.RayHit;
+                ElementalBullet elementalBullet =  ElementalBulletSystem.Instance.CurrentElementalBullet;
+
                 var impact = Instantiate(m_bulletImpactPrefab, rayHit.point, Quaternion.LookRotation(rayHit.normal)) as GameObject;
                 Destroy(impact, 1.5f);
 
@@ -98,12 +99,16 @@ public class GunBase : MonoBehaviour {
                     var runnerBotCtrl = rayHit.collider.GetComponent<RunnerBotCtrl>();
                     runnerBotCtrl.BeAttacked(m_damage);
                     
-                    ElementalBullet elementalBullet =  ElementalBulletSystem.Instance.CurrentElementalBullet;
+                    
                     if (elementalBullet != null)
+                    {
                         elementalBullet.OnEffect(runnerBotCtrl);
+                    }
                 }
             }
 
+            yield return m_fireWaitSeconds;
+            m_muzzleObj.SetActive(false);
             yield return m_fireWaitSeconds;
 
             if (m_isFireStop)

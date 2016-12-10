@@ -263,4 +263,9 @@ public class PlayerCtrl : MonoBehaviour {
         Resources.UnloadAsset(m_anim.runtimeAnimatorController);
         m_anim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("Animators/" + animatorName);
     }
+
+    public void BeAttacked(float damage)
+    {
+        CurrentHp -= damage;
+    }
 }

@@ -10,9 +10,10 @@ public abstract class ElementalBullet : MonoBehaviour {
 
     private GameObject m_gameObject = null;
 
-    public float   EffectSecondsDuration { get { return m_effectSecondsDuration; } }
-    public Vector3 EffectOffset          { get { return m_effectOffset;          } }
-    public bool    IsActivated           { get { return m_gameObject.activeSelf; } set { m_gameObject.SetActive(value); } }
+    public ElementalType MyElementalType       { get { return m_elementalType;         } }
+    public float         EffectSecondsDuration { get { return m_effectSecondsDuration; } }
+    public Vector3       EffectOffset          { get { return m_effectOffset;          } }
+    public bool          IsActivated           { get { return m_gameObject.activeSelf; } set { m_gameObject.SetActive(value); } }
 
     void Awake()
     {

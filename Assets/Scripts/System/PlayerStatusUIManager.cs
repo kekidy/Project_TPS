@@ -11,6 +11,7 @@ public class PlayerStatusUIManager : MonoBehaviour {
     [SerializeField] private PlayerCtrl m_playerCtrl = null;
 
     [Inspector(group = "Status Image Info")]
+    [SerializeField] private Image m_hpGaugeImage     = null;
     [SerializeField] private Image m_shieldGaugeImage = null;
     [SerializeField] private Image m_skillGaugeImage  = null;
 
@@ -32,5 +33,8 @@ public class PlayerStatusUIManager : MonoBehaviour {
             .Where(_ => m_skillGaugeImage.fillAmount < 1f)
             .Where(_ => m_skillImageArray.All(image => !image.activeSelf))
             .Subscribe(_ => m_skillGaugeImage.fillAmount += ((Time.smoothDeltaTime * m_skillRatePerSeconds) / m_playerCtrl.MaxSkillGauge));
+
+        this.ObserveEveryValueChanged(_ => m_playerCtrl.CurrentHp)
+            .Subscribe(_ => m_hpGaugeImage.fillAmount = m_playerCtrl.CurrentHp / m_playerCtrl.MaxHp);
 	}
 }

@@ -63,7 +63,7 @@ public class GlobalItemTrackInspector : Editor
                 object[] attrs = actionSubTypes[i].GetCustomAttributes(typeof(CutsceneItemAttribute), true);
                 for (int j = 0; j < attrs.Length; j++)
                 {
-                    CutsceneItemAttribute attribute = attrs[i] as CutsceneItemAttribute;
+                    CutsceneItemAttribute attribute = attrs[j] as CutsceneItemAttribute;
                     if (attribute != null)
                     {
                         category = attribute.Category;

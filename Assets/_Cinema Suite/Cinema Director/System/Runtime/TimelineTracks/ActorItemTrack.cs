@@ -130,7 +130,7 @@ namespace CinemaDirector
                             }
                         }
                     }
-                    else if (previousTime <= action.EndTime && base.elapsedTime >= action.EndTime)
+                    else if (previousTime < action.EndTime && base.elapsedTime >= action.EndTime)
                     {
                         for (int j = 0; j < Actors.Count; j++)
                         {

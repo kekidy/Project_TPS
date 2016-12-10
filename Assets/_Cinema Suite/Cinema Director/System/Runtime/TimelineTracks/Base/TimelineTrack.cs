@@ -244,7 +244,7 @@ namespace CinemaDirector
                 {
                     // GetComponentInParent does not seem to work in Unity 5.3. 
                     // This means that the Cutscene hierarchy structure has to be strictly maintained.
-#if UNITY_5_3 || UNITY_5_3_OR_NEWER
+#if UNITY_5_3_OR_NEWER
                     group = transform.parent.GetComponent<TrackGroup>();
 #else
                     group = transform.parent.GetComponentInParent<TrackGroup>();

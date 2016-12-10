@@ -9,6 +9,7 @@ using UniLinq;
 public class RunnerBotCtrl : MonoBehaviour {
     [Inspector(group = "Runner Bot Status")]
     [SerializeField] private float m_hp                = 0f;
+    [SerializeField] private float m_damage            = 0f;
     [SerializeField] private float m_attackDelay       = 0f;
     [SerializeField] private int   m_oneCycleAttackNum = 0;
     [SerializeField] private Transform m_weaponBulletPoint = null;
@@ -16,9 +17,10 @@ public class RunnerBotCtrl : MonoBehaviour {
     [Inspector(group = "IK Info")]
     [SerializeField] private Transform m_leftHandTarge = null;
 
-    private Transform m_transform       = null;
-    private Animator  m_myAnim          = null;   
-    private Transform m_targetTransform = null;
+    private Transform  m_transform       = null;
+    private Animator   m_myAnim          = null;   
+    private Transform  m_targetTransform = null;
+    private PlayerCtrl m_playerCtrl      = null;
 
     private float   m_ikLeftHandWeight  = 1f; 
     private float[] m_elementalAccrue   = new float[2];
@@ -45,6 +47,7 @@ public class RunnerBotCtrl : MonoBehaviour {
         m_transform = transform;
         m_myAnim    = GetComponent<Animator>();
         m_targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        m_playerCtrl      = m_targetTransform.GetComponent<PlayerCtrl>();
 
         this.UpdateAsObservable()
             .Where(_ => m_isPlayerDetact)
@@ -89,7 +92,8 @@ public class RunnerBotCtrl : MonoBehaviour {
 
     public void StartAttackToTarget()
     {
-        StartCoroutine("AttackToTarget");
+        if (!IsAttacking)
+            StartCoroutine("AttackToTarget");
     }
 
     public void IncreaseElementalAccrue(float value, ElementalType type)
@@ -105,10 +109,10 @@ public class RunnerBotCtrl : MonoBehaviour {
 
     private IEnumerator AttackToTarget()
     {
+        IsAttacking = true;
+
         for (int i = 0; i < m_oneCycleAttackNum; i++)
         {
-            while (true)
-            {
             yield return new WaitForSeconds(m_attackDelay);
             Vector3 dir = (m_targetTransform.position - m_weaponBulletPoint.position).normalized;
             Vector3 finalAttackDir = dir + new Vector3(dir.z * Random.Range(-0.05f, 0.05f), 0f, dir.x * Random.Range(-0.05f, 0.05f));
@@ -119,12 +123,11 @@ public class RunnerBotCtrl : MonoBehaviour {
             if (Physics.Raycast(m_weaponBulletPoint.position, finalAttackDir, out hit, Mathf.Infinity))
             {
                 if (hit.transform.tag == "Player")
-                    Debug.Log("Hit");
-            }
-
-            yield return null;
+                    m_playerCtrl.BeAttacked(m_damage);
             }
         }
+
+        IsAttacking = false;
     }
 
     [Inspector(group = "AI Test")]

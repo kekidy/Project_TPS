@@ -122,7 +122,17 @@ namespace CinemaDirector
             Assembly[] assemblies = ReflectionHelper.GetAssemblies();
             for (int i = 0; i < assemblies.Length; i++)
             {
-                Type[] types = ReflectionHelper.GetTypes(assemblies[i]);
+                Type[] types = new Type[]{};
+                try
+                {
+                    types = ReflectionHelper.GetTypes(assemblies[i]);
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    Debug.LogError("Cinema Director: Could not load types from assembly \"" + assemblies[i] + "\"\n" + e.Message + "\n" + e.StackTrace);
+                    continue;
+                }
+
                 for (int j = 0; j < types.Length; j++)
                 {
                     if (types[j] != null && ReflectionHelper.IsSubclassOf(types[j], ParentType))

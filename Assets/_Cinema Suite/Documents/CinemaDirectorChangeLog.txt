@@ -1,3 +1,11 @@
+1.4.5.3
+=============
+Bug Fix: Fixed issue where some .DLLs would interfere and break the Director window. Now also prints a debug message teling the user which .DLL is causing the issue.
+Bug Fix: Fixed a styling issue in Unity 5.5 caused by the renaming of an internal editor style.
+Bug Fix: Missed some resource loading calls for our GUI.
+Bug Fix: Fixed issue where clicking the 'Add New Action' button in the Global Item Track's inspector would throw an error.
+Added: A new timeline item the change an object's texture.
+
 v1.4.5.2
 =============
 Added: New folder structure; About window, documentation, and examples are now separate from the core product folders, and can be safetly deleted.

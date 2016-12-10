@@ -18,14 +18,16 @@ public class AIController : MonoBehaviour {
         Root root = new Root();
         Selector select1   = new Selector();
         Inverter inverter1 = new Inverter();
+        Selector select2   = new Selector();
         Sequence sequence1 = new Sequence();
 
         root.SetChild = select1;
             select1.AddChile(new Action(IsDead));
             select1.AddChile(inverter1);
-                inverter1.SetChild = new Action(() => { return m_runnerBotCtrl.IsPlayerDetect; });
-            select1.AddChile(sequence1);
-                sequence1.AddChile(new Action(AttackToTarget));
+                inverter1.SetChild = new Action(() => m_runnerBotCtrl.IsPlayerDetect);
+            select1.AddChile(select2);
+                select2.AddChile(new Action(() => m_runnerBotCtrl.IsAttacking));
+                select2.AddChile(new Action(AttackToTarget));
 
         this.UpdateAsObservable()
             .Subscribe(_ => root.Run());
@@ -57,6 +59,7 @@ public class AIController : MonoBehaviour {
 
     private bool AttackToTarget()
     {
+        m_runnerBotCtrl.StartAttackToTarget();
         return true;
     }
 }

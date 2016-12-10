@@ -701,7 +701,7 @@ public class DirectorWindow : EditorWindow
     {
         CutsceneCreatorWindow ccw = CreateInstance<CutsceneCreatorWindow>();
         Cutscene cs = cutscene != null ? cutscene : null; // explicitly set to null if cutscene is missing
-        CutsceneTrigger ct = ccw.CreateCutsceneTrigger(cutscene);
+        CutsceneTrigger ct = ccw.CreateCutsceneTrigger(cs);
 
         Selection.activeGameObject = ct.gameObject;
     }

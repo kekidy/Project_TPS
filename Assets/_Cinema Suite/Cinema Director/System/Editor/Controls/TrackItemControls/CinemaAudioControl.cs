@@ -17,7 +17,7 @@ public class CinemaAudioControl : ActionFixedItemControl
     public override void Initialize(TimelineItemWrapper wrapper, TimelineTrackWrapper track)
     {
         base.Initialize(wrapper, track);
-        actionIcon = Resources.Load<Texture>("Director_AudioIcon");
+        actionIcon = EditorGUIUtility.Load("Cinema Suite/Cinema Director/Director_AudioIcon.png") as Texture;
     }
 
     void CinemaAudioControl_AlterFixedAction(object sender, ActionFixedItemEventArgs e)
