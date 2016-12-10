@@ -19,18 +19,24 @@ public class AIController : MonoBehaviour {
         Selector select1   = new Selector();
         Inverter inverter1 = new Inverter();
         Selector select2   = new Selector();
-        Sequence sequence1 = new Sequence();
 
         root.SetChild = select1;
             select1.AddChile(new Action(IsDead));
             select1.AddChile(inverter1);
                 inverter1.SetChild = new Action(() => m_runnerBotCtrl.IsPlayerDetect);
             select1.AddChile(select2);
+                select2.AddChile(new Action(IsTargetInView));
                 select2.AddChile(new Action(() => m_runnerBotCtrl.IsAttacking));
                 select2.AddChile(new Action(AttackToTarget));
 
         this.UpdateAsObservable()
             .Subscribe(_ => root.Run());
+    }
+
+    private bool IsTargetInView()
+    {
+        float angle = Mathf.Abs(m_runnerBotCtrl.transform.eulerAngles.y - m_runnerBotCtrl.transform.eulerAngles.y);
+        return angle < 45f ? false : true;
     }
 
     private bool IsDead()
@@ -49,12 +55,6 @@ public class AIController : MonoBehaviour {
         }
         else
             return false;
-    }
-
-    private bool LookAtTarget()
-    {
-        m_runnerBotCtrl.transform.LookAt(m_playerCtrl.transform);
-        return true;
     }
 
     private bool AttackToTarget()

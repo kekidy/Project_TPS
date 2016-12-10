@@ -22,7 +22,6 @@ public class EventTrigger : MonoBehaviour {
         if (col.gameObject == m_eventTarget)
         {
             Invoke("OnEvent", m_startDelaySeconds);
-            GetComponent<BoxCollider>().enabled = false;
         }
     }
 }

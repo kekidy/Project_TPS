@@ -6,23 +6,29 @@ using BehaviorTree;
 using EasyEditor;
 using UniLinq;
 
+[RequireComponent(typeof(AudioSource))]
 public class RunnerBotCtrl : MonoBehaviour {
     [Inspector(group = "Runner Bot Status")]
     [SerializeField] private float m_hp                = 0f;
     [SerializeField] private float m_damage            = 0f;
+
+    [Inspector(group = "Weapon Info")]
     [SerializeField] private float m_attackDelay       = 0f;
     [SerializeField] private float m_oneCycleDelay     = 0f;
-    [SerializeField] private float m_oneCycleAttackNum = 0f;
+    [SerializeField] private float m_oneCycleAttackNum = 0f;  
     [SerializeField] private GameObject m_muzzleFlashObj    = null;
     [SerializeField] private Transform  m_weaponBulletPoint = null;
+    [SerializeField] private GunSound   m_fireSound         = null;
 
     [Inspector(group = "IK Info")]
     [SerializeField] private Transform m_leftHandTarge = null;
 
-    private Transform  m_transform       = null;
-    private Animator   m_myAnim          = null;   
-    private Transform  m_targetTransform = null;
-    private PlayerCtrl m_playerCtrl      = null;
+    private Transform   m_transform       = null;
+    private Animator    m_myAnim          = null;   
+    private Transform   m_targetTransform = null;
+    private AudioSource m_audio           = null;
+    private PlayerCtrl  m_playerCtrl      = null;
+
     private WaitForSeconds m_waitForAttackDelay = null;
     private WaitForSeconds m_waitForOneCycle    = null;
 
@@ -48,11 +54,14 @@ public class RunnerBotCtrl : MonoBehaviour {
     public Animator Anim { get { return m_myAnim; } }
 
 	void Awake () {
-        m_transform = transform;
-        m_myAnim    = GetComponent<Animator>();
-        m_targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
-        m_playerCtrl      = m_targetTransform.GetComponent<PlayerCtrl>();
+        m_transform          = transform;
+        m_myAnim             = GetComponent<Animator>();
+        m_audio              = GetComponent<AudioSource>();
+        m_targetTransform    = GameObject.FindGameObjectWithTag("Player").transform;
+        m_playerCtrl         = m_targetTransform.GetComponent<PlayerCtrl>();
         m_waitForAttackDelay = new WaitForSeconds(m_attackDelay / 2);
+        m_waitForOneCycle    = new WaitForSeconds(m_oneCycleDelay);
+        IsAttacking          = false;
 
         this.UpdateAsObservable()
             .Where(_ => m_isPlayerDetact)
@@ -63,8 +72,6 @@ public class RunnerBotCtrl : MonoBehaviour {
 
                 m_myAnim.SetFloat("horAngle", rotY);
             });
-
-        StartCoroutine("AttackToTarget");
 	}
 
     void OnAnimatorIK(int layer)
@@ -119,12 +126,11 @@ public class RunnerBotCtrl : MonoBehaviour {
         for (int i = 0; i < m_oneCycleAttackNum; i++)
         {
             yield return m_waitForAttackDelay;
-            m_muzzleFlashObj.SetActive(false);
             m_muzzleFlashObj.SetActive(true);
             Vector3 dir = (m_targetTransform.position - m_weaponBulletPoint.position).normalized;
             Vector3 finalAttackDir = dir + new Vector3(dir.z * Random.Range(-0.05f, 0.05f), 0f, dir.x * Random.Range(-0.05f, 0.05f));
 
-            Debug.DrawRay(m_weaponBulletPoint.position, finalAttackDir * 20, Color.red);
+            m_fireSound.PlaySound(m_audio);
 
             RaycastHit hit;
             if (Physics.Raycast(m_weaponBulletPoint.position, finalAttackDir, out hit, Mathf.Infinity))
@@ -132,21 +138,12 @@ public class RunnerBotCtrl : MonoBehaviour {
                 if (hit.transform.tag == "Player")
                     m_playerCtrl.BeAttacked(m_damage);
             }
+
+            yield return m_waitForAttackDelay;
+            m_muzzleFlashObj.SetActive(false);
         }
 
         yield return m_waitForOneCycle;
         IsAttacking = false;
-    }
-
-    [Inspector(group = "AI Test")]
-    private void InverseIsPlayerDetect()
-    {
-        IsPlayerDetect = !IsPlayerDetect;
-    }
-
-    [Inspector(group ="AI Test")]
-    private void HpDecrease()
-    {
-        m_hp -= 5f;
     }
 }

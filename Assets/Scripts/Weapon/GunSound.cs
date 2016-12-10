@@ -2,7 +2,8 @@
 using System.Collections;
 
 [System.Serializable]
-public class GunSound {
+public class GunSound
+{
     [SerializeField] private AudioClip m_audioClip;
     [SerializeField] private float     m_volume;
     [SerializeField] private float     m_pitch;
