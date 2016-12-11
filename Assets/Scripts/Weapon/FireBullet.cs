@@ -2,6 +2,9 @@
 using System.Collections;
 using System;
 
+/**
+ * @brief 불 속성의 총알. 타겟에게 ignite(스크립트) 컴포넌트를 추가시킴.
+ */
 public class FireBullet : ElementalBullet {
     [SerializeField] private float      m_tickDamage      = 0;
     [SerializeField] private GameObject m_igniteEffectObj = null;

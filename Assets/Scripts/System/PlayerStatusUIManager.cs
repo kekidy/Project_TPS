@@ -6,6 +6,9 @@ using EasyEditor;
 using UniLinq;
 using System.Collections;
 
+/**
+ * @brief 플레이어블 캐릭터의 체력, 스킬 게이지, 쉴드 게이지, 스킬 아이콘을 제어하는 컨트롤러 스크립트
+ */
 public class PlayerStatusUIManager : MonoBehaviour {
     [Inspector(group = "Target Info")]
     [SerializeField] private PlayerCtrl m_playerCtrl = null;

@@ -5,6 +5,10 @@ using UniRx.Triggers;
 using EasyEditor;
 using System.Collections;
 
+/**
+ * @brief RunnerBot 전용의 AI 컨트롤러 스크립트
+ */
+
 [RequireComponent(typeof(RunnerBotCtrl))]
 public class AIController : MonoBehaviour {
     private RunnerBotCtrl m_runnerBotCtrl = null;
@@ -24,6 +28,7 @@ public class AIController : MonoBehaviour {
             select1.AddChile(new Action(IsDead));
             select1.AddChile(inverter1);
                 inverter1.SetChild = new Action(() => m_runnerBotCtrl.IsPlayerDetect);
+            select1.AddChile(new Action(() => m_runnerBotCtrl.IsHit));
             select1.AddChile(select2);
                 select2.AddChile(new Action(IsTargetInView));
                 select2.AddChile(new Action(() => m_runnerBotCtrl.IsAttacking));
@@ -35,8 +40,9 @@ public class AIController : MonoBehaviour {
 
     private bool IsTargetInView()
     {
-        float angle = Mathf.Abs(m_runnerBotCtrl.transform.eulerAngles.y - m_runnerBotCtrl.transform.eulerAngles.y);
-        return angle < 45f ? false : true;
+        var rot = Quaternion.Angle(m_playerCtrl.transform.rotation, m_runnerBotCtrl.transform.rotation);
+        rot = Mathf.Abs(180f - rot);
+        return rot < 45f ? false : true;
     }
 
     private bool IsDead()

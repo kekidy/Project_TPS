@@ -2,6 +2,10 @@
 using System.Collections;
 using EasyEditor;
 
+/**
+ * @brief 플레이어블 캐릭터의 데미지를 올려주는 스킬 스크립트
+ */
+
 public class ForceFieldPowerUp : ForceFieldGauge {
     [Inspector(group = "Skill Data")]
     [SerializeField] private float m_powerUpMutiple = 1f;

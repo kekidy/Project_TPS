@@ -2,7 +2,7 @@
 using System.Collections;
 using EasyEditor;
 
-[Groups("FX Info")]
+[Groups("Skill Gauge Info", "FX Info")]
 [CustomEditor(typeof(ForceFieldShield))]
 public class ForceFieldPShieldEditor : EasyEditorBase {
 }

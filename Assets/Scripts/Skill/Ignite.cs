@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/**
+ * @brief 불 속성 공격의 효과 스크립트
+ */
+
 public class Ignite : MonoBehaviour {
     private RunnerBotCtrl  m_runnerBotCtrl  = null;
     private float          m_tickDamage     = 0f;

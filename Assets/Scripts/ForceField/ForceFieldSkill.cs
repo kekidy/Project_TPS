@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using EasyEditor;
 
+/**
+ * @brief 모든 Force Field 스킬들의 부모 클래스
+ */
+
 public abstract class ForceFieldSkill : MonoBehaviour {
     private GameObject m_gameObject = null;
 

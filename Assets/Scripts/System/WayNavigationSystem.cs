@@ -5,6 +5,10 @@ using UniRx;
 using UniRx.Triggers;
 using System.Threading;
 
+/**
+ * @brief 네비게이션의 생성 및 네비게이션 포인트의 제어를 담당하는 컨트롤러 스크립트
+ */
+
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 public class WayNavigationSystem : MonoBehaviour {

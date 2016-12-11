@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/**
+ * @brief 얼음 속성 공격의 효과 스크립트
+ */
+
 public class Freeze : MonoBehaviour {
     private RunnerBotCtrl m_runnerBotCtrl  = null;
     private Material      m_freezeMaterial = null;

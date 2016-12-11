@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/**
+ * @brief 총기 사운드의 다양한 정보를 가지고 있는 클래스. 보유한 정보를 기반으로 사운드를 출력함
+ */
 [System.Serializable]
 public class GunSound
 {

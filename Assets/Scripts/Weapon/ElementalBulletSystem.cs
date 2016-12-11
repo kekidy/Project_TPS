@@ -4,6 +4,10 @@ using UniRx;
 using UniRx.Triggers;
 using EasyEditor;
 
+/**
+ * @brief 속성 총알의 발동음 담당하는 컨트롤러 스크립트
+ */
+
 [RequireComponent(typeof(AudioSource))]
 public class ElementalBulletSystem : MonoBehaviour {
     [System.Serializable]

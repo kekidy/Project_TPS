@@ -3,6 +3,10 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
+/**
+ * @brief Scene 로딩을 제어하기 위한 스크립트
+ */
+
 public class SceneLoadingManager : MonoBehaviour {
     [SerializeField] private string m_nextSceneName = string.Empty;
     [SerializeField] private Image  m_progressImage = null;

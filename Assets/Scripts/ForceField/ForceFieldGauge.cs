@@ -3,6 +3,10 @@ using System.Collections;
 using UnityEngine.UI;
 using EasyEditor;
 
+/**
+ * @brief 스킬 게이지를 사용하는 모든 스킬들이 상속받는 베이스 클래스
+ */
+
 public abstract class ForceFieldGauge : ForceFieldSkill {
     [Inspector(group = "Skill Gauge Info")]
     [SerializeField] private Image m_skillGaugeImage     = null;

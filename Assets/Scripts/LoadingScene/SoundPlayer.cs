@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/**
+ * @brief Main Scene의 사운드 플레이를 위한 컨트롤러 스크립트
+ */
+
 [RequireComponent(typeof(AudioSource))]
 public class SoundPlayer : MonoBehaviour {
     [SerializeField] private AudioClip[] m_audioClipArray = null;

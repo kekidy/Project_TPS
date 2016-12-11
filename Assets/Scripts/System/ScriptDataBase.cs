@@ -11,6 +11,9 @@ public struct ScriptData
     public AudioClip audioClip;
 }
 
+/**
+ * @brief 다양한 대사들을 저장하기 위한 ScriptableObject
+ */
 [CreateAssetMenu(fileName = "ScriptDataBase", menuName = "ScriptDataBase")]
 public class ScriptDataBase : ScriptableObject {
     [SerializeField] private List<ScriptData> m_scriptDataList = null;

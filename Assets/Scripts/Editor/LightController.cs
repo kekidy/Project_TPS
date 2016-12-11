@@ -3,6 +3,10 @@ using System.Collections;
 using UnityEditor;
 using UniLinq;
 
+/**
+ * @brief 라이트 및 라이트 프로브의 제어를 도와주는 Help Editor 클래스
+ */
+
 public class LightController : EditorWindow {
     [MenuItem("Window/Light Controller")]
     static public void ShowWindow()
@@ -23,8 +27,14 @@ public class LightController : EditorWindow {
         if (GUILayout.Button("Light Update"))
             LightUpdate();
 
+        if (GUILayout.Button("Bake Light Remove"))
+            LightRemove();
+
         if (GUILayout.Button("Ref Probe Update"))
             RefProbeUpdate();
+
+        if (GUILayout.Button("Bake Ref Probe Remove"))
+            RefProbeRemove();
 
         if (GUILayout.Button("Bake Light On"))
             BakeLightOn();
@@ -55,6 +65,21 @@ public class LightController : EditorWindow {
     {
         m_lights = FindObjectsOfType<Light>();
         m_currentLightNum = m_lights.Length;
+    }
+
+    public void LightRemove()
+    {
+        var bakeLights = m_lights.Where(light => light.isBaked).ToArray();
+        foreach (var light in bakeLights)
+            DestroyImmediate(light.gameObject);
+    }
+
+    public void RefProbeRemove()
+    {
+        foreach (var probe in m_refProbes)
+        {
+            DestroyImmediate(probe.gameObject);
+        }
     }
 
     public void RefProbeUpdate()

@@ -4,6 +4,10 @@ using UniRx;
 using System.Collections;
 using EasyEditor;
 
+/**
+ * @brief Weapon의 정보를 나타나는 Weapon State UI를 관리하는 매니저 스크립트
+ */
+
 public class WeaponStateUIManager : MonoBehaviour {
     [Inspector(group = "Target Info")]
     [SerializeField] private PlayerCtrl m_playerCtrl = null;

@@ -4,6 +4,10 @@ using UniRx.Triggers;
 using System.Collections;
 using UnityEngine.UI;
 
+/**
+ * @brief 이동해야하는 목표 지점의 방향을 가르쳐주는 ScrollMinimap을 제어하는 컨트롤러 클래스
+ */
+
 public class ScrollMinimapCtrl : MonoBehaviour {
     public static ScrollMinimapCtrl Instance { get; private set; }
 

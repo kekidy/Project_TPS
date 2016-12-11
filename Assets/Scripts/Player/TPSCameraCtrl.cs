@@ -5,7 +5,7 @@ using System.Collections;
 using EasyEditor;
 
 /**
- * @brief TPS 시점 카메라 제어 클래스
+ * @brief TPS 시점 카메라 컨트롤러 스크립트
  */
 public class TPSCameraCtrl : MonoBehaviour {
     public static TPSCameraCtrl Instance { get; private set; }

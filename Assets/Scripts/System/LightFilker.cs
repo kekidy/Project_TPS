@@ -3,6 +3,9 @@ using System.Collections;
 using UniRx;
 using UniRx.Triggers;
 
+/**
+ * @brief Light가 전력 부족인것처럼 깜빡거리는 효과를 주는 스크립트
+ */
 [RequireComponent(typeof(Light))]
 public class LightFilker : MonoBehaviour {
     [SerializeField] private float m_coreBase  = 0f;

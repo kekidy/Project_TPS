@@ -4,6 +4,10 @@ using System.Collections;
 using UniRx;
 using UniRx.Triggers;
 
+/**
+ * @brief 플레이어블 캐릭터를 조종하기 위핸 컨트롤러 스크립트
+ */
+
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 public class PlayerCtrl : MonoBehaviour {
@@ -24,7 +28,9 @@ public class PlayerCtrl : MonoBehaviour {
     [SerializeField] private int          m_startWeaponIndex = 0;
 
     [Inspector(group = "IK Target")]
-    [SerializeField] private Transform leftHandTarget = null;
+    [SerializeField] private Transform m_headTransform        = null;
+    [SerializeField] private Transform m_leftHandTarget       = null;
+    [SerializeField] private Transform m_upRayOriginTransform = null;
 
 	private Transform m_transform = null;
     private Animator  m_anim      = null;
@@ -38,9 +44,18 @@ public class PlayerCtrl : MonoBehaviour {
     private GunBase    m_currentGunBase    = null;
 
     private float m_ikLeftHandWeight = 1f;
+    private float m_attackMultiple   = 1f;
 
     public float Speed          { get { return m_anim.speed; } set { m_anim.speed = value; } }
-    public float AttackMultiple { get; set; }
+    public float AttackMultiple
+    {
+        get { return m_attackMultiple; }
+        set
+        {
+            m_attackMultiple = value;
+            m_currentGunBase.AttackMutiple = value;
+        }
+    }
 
     public float MaxHp          { get { return m_maxHp;          } }
     public float MaxShieldGauge { get { return m_maxShieldGauge; } }
@@ -50,14 +65,18 @@ public class PlayerCtrl : MonoBehaviour {
     public float CurrentShieldGauge { get; set; }
     public float CurrentSkillGauge  { get; set; } 
 
-    public GunBase CurrentGunBase { get { return m_currentGunBase; } }
+    public Transform HeadTransform  { get { return m_headTransform; } }
+
+    public GunBase   CurrentGunBase { get { return m_currentGunBase; } }
+
+    public ForceFieldShield FFShield { get; set; }
 
 	void Awake () {
         m_transform        = transform;
-        m_anim           = GetComponent<Animator>();
+        m_anim             = GetComponent<Animator>();
         m_cameraTransform  = Camera.main.transform;
         m_myCollider       = GetComponent<CapsuleCollider>();
-        AttackMultiple     = 1.0f;
+        FFShield           = null;
         CurrentHp          = m_maxHp;
         CurrentShieldGauge = m_maxShieldGauge;
         CurrentSkillGauge  = m_maxSkillGauge;
@@ -91,7 +110,7 @@ public class PlayerCtrl : MonoBehaviour {
             {
                 m_ikLeftHandWeight = Mathf.MoveTowards(m_ikLeftHandWeight, 1f, Time.smoothDeltaTime * 2f);
                 m_anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, m_ikLeftHandWeight);
-                m_anim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
+                m_anim.SetIKPosition(AvatarIKGoal.LeftHand, m_leftHandTarget.position);
             }
             else
                 m_ikLeftHandWeight = 0f;
@@ -166,6 +185,7 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
+            .Where(_ => !Physics.Linecast(m_upRayOriginTransform.position, (m_upRayOriginTransform.position + new Vector3(0f , 0.5f, 0f))))
             .Subscribe(_ => {
                 if (Input.GetButton("Sprint"))
                 {
@@ -199,6 +219,7 @@ public class PlayerCtrl : MonoBehaviour {
     {
         this.UpdateAsObservable()
             .Where(_ => this.enabled)
+            .Where(_ => !Physics.Linecast(m_upRayOriginTransform.position, (m_upRayOriginTransform.position + new Vector3(0f , 0.5f, 0f))))
             .Where(_ => Input.GetButtonDown("Sit"))
             .Select(_ => !m_anim.GetBool("isSit"))
             .Subscribe(isSit => {
@@ -206,11 +227,13 @@ public class PlayerCtrl : MonoBehaviour {
 
                 if (isSit)
                 {
+                    m_upRayOriginTransform.localPosition = new Vector3(0f, 1.45f, 0f);
                     m_myCollider.center = new Vector3(0f, 0.4f, 0f);
                     m_myCollider.height = 0.8f;
                 }
                 else
                 {
+                    m_upRayOriginTransform.localPosition = new Vector3(0f, 1.65f, 0f);
                     m_myCollider.center = new Vector3(0f, 0.8f, 0f);
                     m_myCollider.height = 1.6f;
                 }
@@ -220,6 +243,7 @@ public class PlayerCtrl : MonoBehaviour {
     private void WeaponChangeObservable()
     {
         this.UpdateAsObservable()
+            .Where(_ => this.enabled)
             .SelectMany(_ => m_weaponInfoObservable.Where(weaponInfo => Input.GetKeyDown(weaponInfo.weaponActivateKeyCode)))
             .Where(weapon => weapon != m_currentWeaponInfo)
             .Subscribe(weaponInfo => {
@@ -266,6 +290,12 @@ public class PlayerCtrl : MonoBehaviour {
 
     public void BeAttacked(float damage)
     {
-        CurrentHp -= damage;
+        if (FFShield)
+            CurrentHp -= FFShield.OnPrtected(this, damage);
+        else
+        {
+            CurrentHp -= damage;
+            CameraBloodCtrl.Instance.OnBloodEffect();
+        }
     }
 }

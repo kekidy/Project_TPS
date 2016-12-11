@@ -1,0 +1,1 @@
+﻿public enum ForceFieldType { NON = -1, SHIELD, BOOST, POWER_UP }

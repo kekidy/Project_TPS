@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/**
+ * @brief 모든 속성 총알들이 상속하는 부모 클래스
+ */
 public abstract class ElementalBullet : MonoBehaviour {
     [SerializeField] private ElementalType m_elementalType = ElementalType.NON;
     [Range(0f, 100f)]

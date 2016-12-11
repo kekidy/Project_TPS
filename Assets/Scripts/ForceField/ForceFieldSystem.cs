@@ -6,13 +6,17 @@ using System.Collections;
 using EasyEditor;
 using UnityEngine.Events;
 
+/**
+ * @brief Force Field 스킬의 발동을 담당하는 시스템 스크립트
+ */
+
 [RequireComponent(typeof(AudioSource))]
 public class ForceFieldSystem : MonoBehaviour {
     [System.Serializable]
     private class SkillData
     {
-        public string    skillName     = string.Empty;
-        public KeyCode   acitveKeyCode = KeyCode.None;
+        public ForceFieldType skillType     = ForceFieldType.NON;
+        public KeyCode        acitveKeyCode = KeyCode.None;
 
         public Color     innerColor    = Color.white;
         public Color     outerColor    = Color.white;

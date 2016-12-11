@@ -4,6 +4,10 @@ using System.Collections;
 using System;
 using UnityStandardAssets.ImageEffects;
 
+/**
+ * @brief 플레이어블 캐릭터의 이동 속도를 높여주는 스킬 스크립트
+ */
+
 public class ForceFieldBoost : ForceFieldGauge {
     [Inspector(group = "Skill Data")]
     [SerializeField] private float m_speedMutiple = 1f;

@@ -2,6 +2,10 @@
 using System.Collections;
 using UnityEngine.UI;
 
+/**
+ * @brief UI 중 크로스헤어 이미지의 제어를 담당하는 컨트롤러 스크립트
+ */
+
 [RequireComponent(typeof(Image))]
 public class CrosshairCtrl : MonoBehaviour {
     [SerializeField] private Sprite    m_normalSprite  = null;

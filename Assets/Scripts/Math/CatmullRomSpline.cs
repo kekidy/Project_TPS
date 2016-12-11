@@ -2,6 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/**
+ * @brief Catmull-Rom Spline 공식을 코드화 시켜놓은 정적 클래스
+ */
+
 public class CatmullRomSpline {
 
     public static List<Vector3> CreateCatmullRomList(List<Vector3> vectorList, float timeCycle)

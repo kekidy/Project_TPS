@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using System.Collections;
 using EasyEditor;
 
+/**
+ * @brief 모든 총기류가 상속받는 클래스. 현재는 총기가 두 종류 밖에 없어서 다른 점이 없어 상속하지 않고 이 스크립트를 그대로 씀.
+ */
 [RequireComponent(typeof(AudioSource))]
 public class GunBase : MonoBehaviour {
     [Inspector(group = "Status")]
@@ -33,6 +36,8 @@ public class GunBase : MonoBehaviour {
     private Camera         m_mainCamera         = null;
     private Transform      m_mainCmeraTransform = null;
 
+    public float AttackMutiple { get; set; }
+
 	void Awake () {
         m_fireWaitSeconds = new WaitForSeconds(m_rateOfFireSeconds / 2f);
         CurrentMagazinNum = m_maxMagazineNum;
@@ -51,10 +56,11 @@ public class GunBase : MonoBehaviour {
         m_isFireStop = true;
     }
 
-    public void StartToShooting()
+    public void StartToShooting(float attackMultiple = 1f)
     {
         if (!m_isFire)
         {
+            AttackMutiple = attackMultiple;
             StartCoroutine("Shooting");
         }
     }
@@ -97,7 +103,7 @@ public class GunBase : MonoBehaviour {
                 if (rayHit.collider.tag == "Enemy")
                 {
                     var runnerBotCtrl = rayHit.collider.GetComponent<RunnerBotCtrl>();
-                    runnerBotCtrl.BeAttacked(m_damage);
+                    runnerBotCtrl.BeAttacked(m_damage * AttackMutiple);
                     
                     
                     if (elementalBullet != null)
